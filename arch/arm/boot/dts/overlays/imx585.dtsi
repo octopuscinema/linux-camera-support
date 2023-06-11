@@ -1,0 +1,31 @@
+// Fragment to configure and IMX585 image sensor
+
+cam_node: imx585@1a {
+	compatible = "sony,imx585";
+	reg = <0x1a>;
+
+#ifdef DISABLE_CAM
+	status = "disabled";
+#else
+	status = "okay";
+#endif
+
+	clocks = <&cam1_clk>;
+	clock-names = "xclk";
+	clock-frequency = <24000000>;
+	//clock-frequency = <37125000>;
+
+	rotation = <0>;
+	orientation = <2>;
+
+	vdda-supply = <&cam1_reg>;	/* 2.8v */
+	vdddo-supply = <&cam_dummy_reg>;	/* 1.8v */
+	vddd-supply = <&cam_dummy_reg>;	/* 1.5v */
+
+	port {
+		cam_endpoint: endpoint {
+			remote-endpoint = <&csi_ep>;
+			clock-lanes = <0>;
+		};
+	};
+};
