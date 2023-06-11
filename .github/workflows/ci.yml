@@ -23,6 +23,7 @@ jobs:
 
     - name: Prepare environment
       run: |
+        uname -r
         export DEBIAN_FRONTEND=noninteractive
         dpkg --add-architecture arm64
         apt-get update && apt-get install -y debian-keyring gnupg
@@ -31,19 +32,34 @@ jobs:
         echo 'deb http://archive.raspberrypi.org/debian/ bullseye main' > /etc/apt/sources.list.d/raspi.list
 
     - name: Install dependancies
-      run: apt-get update && apt-get install -y cmake git raspberrypi-kernel-headers
+      run: |
+        apt-get update && apt-get install -y raspberrypi-kernel-headers
+        dpkg -L raspberrypi-kernel-headers
 
     - name: Install ARM 64-bit toolchain
       run: apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
       
-    - name: Build kernel camera drivers
+    - name: Build imx585 kernel driver
       run: |
         cd drivers/media/i2c
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- KERNEL=6.1.21-v8+ MODNAME=imx585 
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- KERNEL=6.1.21-v8+ MODNAME=imx585
 
-#    - name: Upload .deb artifact
-#      uses: actions/upload-artifact@v3.1.0
-#      with:
-#        name: libcamera_0.0.4octopus-0_arm64
-#        path: ./libcamera_0.0.4octopus-0_arm64.deb
-#        if-no-files-found: error
+    - name: Upload imx585 driver artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: imx585
+        path: drivers/media/i2c/imx585.ko
+        if-no-files-found: error
+    
+    - name: Build imx662 kernel driver
+      run: |
+        cd drivers/media/i2c
+        make clean
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- KERNEL=6.1.21-v8+ MODNAME=imx662
+
+    - name: Upload imx662 driver artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: imx662
+        path: drivers/media/i2c/imx662.ko
+        if-no-files-found: error
