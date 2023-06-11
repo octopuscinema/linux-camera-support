@@ -39,7 +39,7 @@ jobs:
     - name: Build kernel camera drivers
       run: |
         cd drivers/media/i2c
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-gcc KERNEL=6.1.21-v8+ MODNAME=imx585 
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- KERNEL=6.1.21-v8+ MODNAME=imx585 
 
 #    - name: Upload .deb artifact
 #      uses: actions/upload-artifact@v3.1.0
