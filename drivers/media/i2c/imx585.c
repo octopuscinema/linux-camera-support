@@ -25,7 +25,7 @@
 // Support for rpi kernel pre git commit 314a685
 #ifndef MEDIA_BUS_FMT_SENSOR_DATA
 #define MEDIA_BUS_FMT_SENSOR_DATA		0x7002
-#define
+#endif
 
 /* Chip ID */
 #define IMX585_REG_CHIP_ID		0x3000
