@@ -23,7 +23,6 @@ jobs:
 
     - name: Prepare environment
       run: |
-        uname -r
         export DEBIAN_FRONTEND=noninteractive
         dpkg --add-architecture arm64
         apt-get update && apt-get install -y debian-keyring gnupg make
@@ -34,7 +33,6 @@ jobs:
     - name: Install dependancies
       run: |
         apt-get update && apt-get install -y raspberrypi-kernel-headers
-        dpkg -L raspberrypi-kernel-headers
 
     - name: Install ARM 64-bit toolchain
       run: apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
