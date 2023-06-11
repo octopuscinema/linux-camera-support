@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [ "rpi-6.1.*" ]
+  pull_request:
+    branches: [ "rpi-6.1.*" ]
+
+permissions:
+  contents: read
+
+jobs:
+  rpios-bullseye-64:
+    name: Raspberry Pi OS 11 (64-bit)
+    runs-on: ubuntu-20.04
+    container: debian:bullseye
+    timeout-minutes: 10
+
+    steps:
+
+    - uses: actions/checkout@v3
+      name: Checkout
+
+    - name: Prepare environment
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        dpkg --add-architecture arm64
+        add-apt-repository -y ppa:rpi-distro/ppa
+
+    - name: Install dependancies
+      run: apt-get update && apt-get install -y cmake git aspberrypi-kernel-headers
+
+    - name: Install ARM 64-bit toolchain
+      run: apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libgnutls28-dev:arm64 libboost-dev:arm64 libudev-dev:arm64 libgstreamer1.0-dev:arm64 libgstreamer-plugins-base1.0-dev:arm64 libevent-dev:arm64 qtbase5-dev:arm64 libqt5core5a:arm64 libqt5gui5:arm64 libqt5widgets5:arm64 qttools5-dev-tools:arm64 libtiff-dev:arm64 libexif-dev:arm64 libjpeg-dev:arm64 libyaml-dev:arm64
+      
+    - name: Build kernel camera drivers
+      run: |
+        cd drivers/media/i2c
+        make ARCH=arm64 CROSS_COMPILE=aarch64-none-linux-gnu- KERNEL=6.1.21-v8+ MODNAME=imx585 
+
+#    - name: Upload .deb artifact
+#      uses: actions/upload-artifact@v3.1.0
+#      with:
+#        name: libcamera_0.0.4octopus-0_arm64
+#        path: ./libcamera_0.0.4octopus-0_arm64.deb
+#        if-no-files-found: error
