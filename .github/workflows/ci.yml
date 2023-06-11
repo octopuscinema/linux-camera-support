@@ -26,7 +26,8 @@ jobs:
         export DEBIAN_FRONTEND=noninteractive
         dpkg --add-architecture arm64
         echo 'deb http://archive.raspberrypi.org/debian/ bullseye main' > /etc/apt/sources.list.d/raspi.list
-
+        apt-key adv --keyserver pgp.mit.edu --recv-keys 82B129927FA3303E
+        
     - name: Install dependancies
       run: apt-get update && apt-get install -y cmake git raspberrypi-kernel-headers
 
