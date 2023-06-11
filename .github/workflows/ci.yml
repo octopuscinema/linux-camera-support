@@ -34,7 +34,7 @@ jobs:
       run: apt-get update && apt-get install -y cmake git raspberrypi-kernel-headers
 
     - name: Install ARM 64-bit toolchain
-      run: apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libgnutls28-dev:arm64 libboost-dev:arm64 libudev-dev:arm64 libgstreamer1.0-dev:arm64 libgstreamer-plugins-base1.0-dev:arm64 libevent-dev:arm64 qtbase5-dev:arm64 libqt5core5a:arm64 libqt5gui5:arm64 libqt5widgets5:arm64 qttools5-dev-tools:arm64 libtiff-dev:arm64 libexif-dev:arm64 libjpeg-dev:arm64 libyaml-dev:arm64
+      run: apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
       
     - name: Build kernel camera drivers
       run: |
