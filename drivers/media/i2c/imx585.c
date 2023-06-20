@@ -71,7 +71,7 @@
 #define IMX585_EMBEDDED_LINE_WIDTH 16384
 #define IMX585_NUM_EMBEDDED_LINES 1
 
-#define IMX_PIXEL_RATE 61462500//74500000
+#define IMX_PIXEL_RATE 74500000
 
 enum pad_types {
 	IMAGE_PAD,
@@ -162,7 +162,7 @@ static const struct imx585_reg mode_common_regs[] = {
 
 
     {0x3014, 0x04},// INCK_SEL [3:0] 24 MHz
-    {0x3015, 0x04},// DATARATE_SEL [3:0]  1188 Mbps
+    {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
     // {0x302C, 0x4C},// HMAX [15:0]
     // {0x302D, 0x04},// 
     {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
