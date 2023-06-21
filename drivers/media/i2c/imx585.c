@@ -166,7 +166,7 @@ static const struct imx585_reg mode_common_regs[] = {
     // {0x302C, 0x4C},// HMAX [15:0]
     // {0x302D, 0x04},// 
     {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
-    {0x3040, 0x01},// LANEMODE [2:0] 2 lane
+    {0x3040, 0x03},// LANEMODE [2:0] 4 lane
     {0x3023, 0x01},// RAW12
     // {0x3028, 0x94},// VMAX
     // {0x3029, 0x11},// VMAX
