@@ -71,7 +71,7 @@
 #define IMX585_EMBEDDED_LINE_WIDTH 16384
 #define IMX585_NUM_EMBEDDED_LINES 1
 
-#define IMX_PIXEL_RATE 74500000
+#define IMX585_PIXEL_RATE 74250000
 
 enum pad_types {
 	IMAGE_PAD,
@@ -162,7 +162,7 @@ static const struct imx585_reg mode_common_regs[] = {
 
 
     {0x3014, 0x04},// INCK_SEL [3:0] 24 MHz
-    {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
+    {0x3015, 0x05},// DATARATE_SEL [3:0]  891 Mbps
     // {0x302C, 0x4C},// HMAX [15:0]
     // {0x302D, 0x04},// 
     {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
@@ -816,9 +816,9 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			u64 hmax;
 			dev_info(&client->dev,"V4L2_CID_HBLANK : %d\n",ctrl->val);
 			//int hmax = (IMX585_NATIVE_WIDTH + ctrl->val) * 72000000; / IMX585_PIXEL_RATE;
-			pixel_rate = (u64)mode->width * IMX_PIXEL_RATE;
+			pixel_rate = (u64)mode->width * IMX585_PIXEL_RATE;
 			do_div(pixel_rate,mode->min_HMAX);
-			hmax = (u64)(mode->width + ctrl->val) * IMX_PIXEL_RATE;
+			hmax = (u64)(mode->width + ctrl->val) * IMX585_PIXEL_RATE;
 			do_div(hmax,pixel_rate);
 			imx585 -> HMAX = hmax;
 			dev_info(&client->dev,"\tHMAX : %d\n",imx585 -> HMAX);
@@ -994,14 +994,14 @@ static void imx585_set_framing_limits(struct imx585 *imx585)
 	imx585->VMAX = mode->default_VMAX;
 	imx585->HMAX = mode->default_HMAX;
 
-	pixel_rate = (u64)mode->width * IMX_PIXEL_RATE;
+	pixel_rate = (u64)mode->width * IMX585_PIXEL_RATE;
 	do_div(pixel_rate,mode->min_HMAX);
 	dev_info(&client->dev,"Pixel Rate : %lld\n",pixel_rate);
 
 
 	//int def_hblank = mode->default_HMAX * IMX585_PIXEL_RATE / 72000000 - IMX585_NATIVE_WIDTH;
 	def_hblank = mode->default_HMAX * pixel_rate;
-	do_div(def_hblank,IMX_PIXEL_RATE);
+	do_div(def_hblank,IMX585_PIXEL_RATE);
 	def_hblank = def_hblank - mode->width;
 	__v4l2_ctrl_modify_range(imx585->hblank, 0,
 				 IMX585_HMAX_MAX, 1, def_hblank);
