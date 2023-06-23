@@ -35,7 +35,7 @@
 #define IMX585_MODE_STANDBY		0x01
 #define IMX585_MODE_STREAMING		0x00
 
-#define IMX585_XCLK_FREQ		24000000
+#define IMX585_XCLK_FREQ		37125000
 
 /* VMAX internal VBLANK*/
 #define IMX585_REG_VMAX		0x3028
@@ -71,7 +71,7 @@
 #define IMX585_EMBEDDED_LINE_WIDTH 16384
 #define IMX585_NUM_EMBEDDED_LINES 1
 
-#define IMX585_PIXEL_RATE 74250000
+#define IMX585_PIXEL_RATE 48000000
 
 enum pad_types {
 	IMAGE_PAD,
@@ -161,8 +161,8 @@ static const struct imx585_reg mode_common_regs[] = {
 
 
 
-    {0x3014, 0x04},// INCK_SEL [3:0] 24 MHz
-    {0x3015, 0x05},// DATARATE_SEL [3:0]  891 Mbps
+    {0x3014, 0x01},// INCK_SEL [3:0] 37.127 MHz
+    {0x3015, 0x04},// DATARATE_SEL [3:0]  1188 Mbps
     // {0x302C, 0x4C},// HMAX [15:0]
     // {0x302D, 0x04},// 
     {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
@@ -415,7 +415,7 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		/* 20MPix 20fps readout mode 0 */
 		.width = 3856,
 		.height = 2180,
-		.min_HMAX = 1320,
+		.min_HMAX = 760,
 		//.min_HMAX = 550, // C-HDR original
 		.min_VMAX = 2250,
 		//.min_VMAX = 4500, // C-HDR original
