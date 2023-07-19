@@ -443,8 +443,6 @@ static const struct imx585_mode supported_modes_12bit[] = {
 
 };
 
-
-
 /*
  * The supported formats.
  * This table MUST contain 4 entries per format, to cover the various flip
@@ -455,6 +453,8 @@ static const struct imx585_mode supported_modes_12bit[] = {
  * - h&v flips
  */
 static const u32 codes[] = {
+	/* 16-bit modes. */
+	
 	/* 12-bit modes. */
 	MEDIA_BUS_FMT_SRGGB12_1X12,
 	MEDIA_BUS_FMT_SGRBG12_1X12,
@@ -540,6 +540,7 @@ static inline void get_mode_table(unsigned int code,
 				  unsigned int *num_modes)
 {
 	switch (code) {
+	/* 16-bit */
 	/* 12-bit */
 	case MEDIA_BUS_FMT_SRGGB12_1X12:
 	case MEDIA_BUS_FMT_SGRBG12_1X12:
