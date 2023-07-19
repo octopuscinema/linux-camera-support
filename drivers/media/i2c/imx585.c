@@ -6,6 +6,8 @@
  * Copyright (C) 2019-2020 Raspberry Pi (Trading) Ltd
  * Modified by Will WHANG
  * Modified by sohonomura2020 in Soho Enterprise Ltd.
+ * Modified by OCTOPUSCINEMA
+ * Copyright (C) 2023 OCTOPUS CINEMA
  */
 #include <asm/unaligned.h>
 #include <linux/clk.h>
@@ -24,52 +26,51 @@
 
 // Support for rpi kernel pre git commit 314a685
 #ifndef MEDIA_BUS_FMT_SENSOR_DATA
-#define MEDIA_BUS_FMT_SENSOR_DATA		0x7002
+#define MEDIA_BUS_FMT_SENSOR_DATA 	0x7002
 #endif
 
 /* Chip ID */
-#define IMX585_REG_CHIP_ID		0x3000
-#define IMX585_CHIP_ID			0x0000
+#define IMX585_REG_CHIP_ID			0x3000
+#define IMX585_CHIP_ID				0x0000
 
 #define IMX585_REG_MODE_SELECT		0x3000
-#define IMX585_MODE_STANDBY		0x01
+#define IMX585_MODE_STANDBY			0x01
 #define IMX585_MODE_STREAMING		0x00
 
-#define IMX585_XCLK_FREQ		37125000
+#define IMX585_XCLK_FREQ			37125000
 
 /* VMAX internal VBLANK*/
-#define IMX585_REG_VMAX		0x3028
-#define IMX585_VMAX_MAX		0xfffff
+#define IMX585_REG_VMAX				0x3028
+#define IMX585_VMAX_MAX				0xfffff
 
 /* HMAX internal HBLANK*/
-#define IMX585_REG_HMAX		0x302C
-#define IMX585_HMAX_MAX		0xffff
+#define IMX585_REG_HMAX				0x302C
+#define IMX585_HMAX_MAX				0xffff
 
 /* SHR internal */
-#define IMX585_REG_SHR		0x3050
-#define IMX585_SHR_MIN		11
+#define IMX585_REG_SHR				0x3050
+#define IMX585_SHR_MIN				11
 
 /* Exposure control */
 #define IMX585_EXPOSURE_MIN			52
 #define IMX585_EXPOSURE_STEP		1
 #define IMX585_EXPOSURE_DEFAULT		1000
-#define IMX585_EXPOSURE_MAX		49865
+#define IMX585_EXPOSURE_MAX			49865
 
 /* Analog gain control */
 #define IMX585_REG_ANALOG_GAIN		0x306C
-#define IMX585_ANA_GAIN_MIN		1
-#define IMX585_ANA_GAIN_MAX		240 // x3980= 72db = 0.3db x 240
+#define IMX585_ANA_GAIN_MIN			1
+#define IMX585_ANA_GAIN_MAX			240 // x3980= 72db = 0.3db x 240
 #define IMX585_ANA_GAIN_STEP		1
 #define IMX585_ANA_GAIN_DEFAULT		1
 
-// #define IMX585_REG_VFLIP		0x3021
-#define IMX585_FLIP_WINMODEH    0x3020
-#define IMX585_FLIP_WINMODEV    0x3021
-
+// #define IMX585_REG_VFLIP			0x3021
+#define IMX585_FLIP_WINMODEH    	0x3020
+#define IMX585_FLIP_WINMODEV    	0x3021
 
 /* Embedded metadata stream structure */
-#define IMX585_EMBEDDED_LINE_WIDTH 16384
-#define IMX585_NUM_EMBEDDED_LINES 1
+#define IMX585_EMBEDDED_LINE_WIDTH 	16384
+#define IMX585_NUM_EMBEDDED_LINES 	1
 
 #define IMX585_PIXEL_RATE 48000000
 
@@ -80,12 +81,12 @@ enum pad_types {
 };
 
 /* imx585 native and active pixel array size. */
-#define IMX585_NATIVE_WIDTH		3856U
+#define IMX585_NATIVE_WIDTH			3856U
 #define IMX585_NATIVE_HEIGHT		2180U
-#define imx585_PIXEL_ARRAY_LEFT	8U
-#define imx585_PIXEL_ARRAY_TOP		4U
-#define imx585_PIXEL_ARRAY_WIDTH	3840U
-#define imx585_PIXEL_ARRAY_HEIGHT	2160U
+#define IMX585_PIXEL_ARRAY_LEFT		8U
+#define IMX585_PIXEL_ARRAY_TOP		4U
+#define IMX585_PIXEL_ARRAY_WIDTH	3840U
+#define IMX585_PIXEL_ARRAY_HEIGHT	2160U
 
 struct imx585_reg {
 	u16 address;
@@ -403,16 +404,20 @@ static const struct imx585_reg mode_common_regs[] = {
     {0x3002, 0x00}, // Master mode start
 };
 
-/* 20MPix 20fps readout mode 0 */
+/* All pixel 4K30. 12-bit (Normal) */
 static const struct imx585_reg mode_4k_regs[] = {
 
 };
 
+/* 2x2 binned 1080p30. 16-bit (Clear HDR) */
+static const struct imx585_reg mode_1080_regs[] = {
+
+};
 
 /* Mode configs */
 static const struct imx585_mode supported_modes_12bit[] = {
 	{
-		/* 20MPix 20fps readout mode 0 */
+		/* 4K30 All pixel */
 		.width = 3856,
 		.height = 2180,
 		.min_HMAX = 760,
@@ -425,10 +430,10 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		// .default_VMAX = 4500,
 		.min_SHR = 20,
 		.crop = {
-			.left = imx585_PIXEL_ARRAY_LEFT,
-			.top = imx585_PIXEL_ARRAY_TOP,
-			.width = imx585_PIXEL_ARRAY_WIDTH,
-			.height = imx585_PIXEL_ARRAY_HEIGHT,
+			.left = IMX585_PIXEL_ARRAY_LEFT,
+			.top = IMX585_PIXEL_ARRAY_TOP,
+			.width = IMX585_PIXEL_ARRAY_WIDTH,
+			.height = IMX585_PIXEL_ARRAY_HEIGHT,
 		},
 		.reg_list = {
 			.num_of_regs = ARRAY_SIZE(mode_4k_regs),
@@ -699,10 +704,10 @@ static int imx585_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 
 	/* Initialize try_crop */
 	try_crop = v4l2_subdev_get_try_crop(sd, fh->state, IMAGE_PAD);
-	try_crop->left = imx585_PIXEL_ARRAY_LEFT;
-	try_crop->top = imx585_PIXEL_ARRAY_TOP;
-	try_crop->width = imx585_PIXEL_ARRAY_WIDTH;
-	try_crop->height = imx585_PIXEL_ARRAY_HEIGHT;
+	try_crop->left = IMX585_PIXEL_ARRAY_LEFT;
+	try_crop->top = IMX585_PIXEL_ARRAY_TOP;
+	try_crop->width = IMX585_PIXEL_ARRAY_WIDTH;
+	try_crop->height = IMX585_PIXEL_ARRAY_HEIGHT;
 
 	mutex_unlock(&imx585->mutex);
 
@@ -1328,10 +1333,10 @@ static int imx585_get_selection(struct v4l2_subdev *sd,
 
 	case V4L2_SEL_TGT_CROP_DEFAULT:
 	case V4L2_SEL_TGT_CROP_BOUNDS:
-		sel->r.left = imx585_PIXEL_ARRAY_LEFT;
-		sel->r.top = imx585_PIXEL_ARRAY_TOP;
-		sel->r.width = imx585_PIXEL_ARRAY_WIDTH;
-		sel->r.height = imx585_PIXEL_ARRAY_HEIGHT;
+		sel->r.left = IMX585_PIXEL_ARRAY_LEFT;
+		sel->r.top = IMX585_PIXEL_ARRAY_TOP;
+		sel->r.width = IMX585_PIXEL_ARRAY_WIDTH;
+		sel->r.height = IMX585_PIXEL_ARRAY_HEIGHT;
 
 		return 0;
 	}
