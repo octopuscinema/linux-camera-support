@@ -520,10 +520,10 @@ static const struct imx585_mode supported_modes_16bit[] = {
  */
 static const u32 codes[] = {
 	/* 16-bit modes. */
-	MEDIA_BUS_FMT_SRGGB12_1X16,
-	MEDIA_BUS_FMT_SGRBG12_1X16,
-	MEDIA_BUS_FMT_SGBRG12_1X16,
-	MEDIA_BUS_FMT_SBGGR12_1X16,
+	MEDIA_BUS_FMT_SRGGB16_1X16,
+	MEDIA_BUS_FMT_SGRBG16_1X16,
+	MEDIA_BUS_FMT_SGBRG16_1X16,
+	MEDIA_BUS_FMT_SBGGR16_1X16,
 	/* 12-bit modes. */
 	MEDIA_BUS_FMT_SRGGB12_1X12,
 	MEDIA_BUS_FMT_SGRBG12_1X12,
@@ -610,10 +610,10 @@ static inline void get_mode_table(unsigned int code,
 {
 	switch (code) {
 	/* 16-bit */
-	case MEDIA_BUS_FMT_SRGGB12_1X16:
-	case MEDIA_BUS_FMT_SGRBG12_1X16:
-	case MEDIA_BUS_FMT_SGBRG12_1X16:
-	case MEDIA_BUS_FMT_SBGGR12_1X16:
+	case MEDIA_BUS_FMT_SRGGB16_1X16:
+	case MEDIA_BUS_FMT_SGRBG16_1X16:
+	case MEDIA_BUS_FMT_SGBRG16_1X16:
+	case MEDIA_BUS_FMT_SBGGR16_1X16:
 		*mode_list = supported_modes_16bit;
 		*num_modes = ARRAY_SIZE(supported_modes_16bit);
 		break;
