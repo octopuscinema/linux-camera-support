@@ -411,7 +411,47 @@ static const struct imx585_reg mode_4k_regs[] = {
 
 /* 2x2 binned 1080p30. 16-bit (Clear HDR) */
 static const struct imx585_reg mode_1080_regs[] = {
-
+    {0x301A, 0x10}, //WDMODE C-HDR
+    {0x301B, 0x01}, //ADDMODE 0x01 binning
+	{0x3014, 0x01},// INCK_SEL [3:0] 37.127 MHz
+    {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
+    {0x3024, 0x02}, // COMBI_EN 
+	{0x3040, 0x03},// LANEMODE [2:0] 4 lane
+    {0x3069, 0x02}, // for C-HDR mode
+    {0x3074, 0x63}, // for C-HDR
+	{0x3081, 0x05},
+    
+    {0x3930, 0xE6},//DUR Clear HDR 12bit
+    {0x3931, 0x00},//DUR Clear HDR 12bit
+    
+    {0x3A4C, 0x61},// WAIT_ST0
+    {0x3A4D, 0x02},// 
+    {0x3A50, 0x70},// WAIT_ST1
+    {0x3A51, 0x02},// 
+    
+    {0x3E10, 0x17},// ADTHEN
+    {0x493C, 0x23},// ADTHEN
+    {0x4940, 0x41},// ADTHEN
+    
+    // continue from here...
+    // {0x302C, 0x4C},// HMAX [15:0]
+    // {0x302D, 0x04},// 
+    {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
+    
+    {0x3023, 0x03},// RAW16
+    // {0x3028, 0x94},// VMAX
+    // {0x3029, 0x11},// VMAX
+    // {0x302A, 0x00},// VMAX
+    // {0x3050, 0xFF},// SHR0 [19:0]
+    {0x30A6, 0x0F},// XVS_DRV [1:0] Hi-Z
+    {0x3460, 0x21},// -
+    {0x3478, 0xA1},// -
+    {0x347C, 0x01},// -
+    {0x3480, 0x01},// -
+    
+    {0x3A4E, 0x14},// -
+    //{0x3A50, 0x48},// WAIT_ST1
+    //{0x3A51, 0x01},// 
 };
 
 /* Mode configs */
@@ -440,7 +480,33 @@ static const struct imx585_mode supported_modes_12bit[] = {
 			.regs = mode_4k_regs,
 		},
 	},
+};
 
+static const struct imx585_mode supported_modes_16bit[] = {
+	{
+		/* 1080p30 2x2 binning */
+		.width = 1928,
+		.height = 1090,
+		//.min_HMAX = 760,
+		.min_HMAX = 550, // C-HDR original
+		//.min_VMAX = 2250,
+		.min_VMAX = 4500, // C-HDR original
+		.default_HMAX = 550,
+		.default_VMAX = 4500,
+		// .default_HMAX = 550,
+		// .default_VMAX = 4500,
+		.min_SHR = 20,
+		.crop = {
+			.left = IMX585_PIXEL_ARRAY_LEFT,
+			.top = IMX585_PIXEL_ARRAY_TOP,
+			.width = IMX585_PIXEL_ARRAY_WIDTH,
+			.height = IMX585_PIXEL_ARRAY_HEIGHT,
+		},
+		.reg_list = {
+			.num_of_regs = ARRAY_SIZE(mode_1080_regs),
+			.regs = mode_1080_regs,
+		},
+	},
 };
 
 /*
@@ -454,7 +520,10 @@ static const struct imx585_mode supported_modes_12bit[] = {
  */
 static const u32 codes[] = {
 	/* 16-bit modes. */
-	
+	MEDIA_BUS_FMT_SRGGB12_1X16,
+	MEDIA_BUS_FMT_SGRBG12_1X16,
+	MEDIA_BUS_FMT_SGBRG12_1X16,
+	MEDIA_BUS_FMT_SBGGR12_1X16,
 	/* 12-bit modes. */
 	MEDIA_BUS_FMT_SRGGB12_1X12,
 	MEDIA_BUS_FMT_SGRBG12_1X12,
@@ -541,6 +610,13 @@ static inline void get_mode_table(unsigned int code,
 {
 	switch (code) {
 	/* 16-bit */
+	case MEDIA_BUS_FMT_SRGGB12_1X16:
+	case MEDIA_BUS_FMT_SGRBG12_1X16:
+	case MEDIA_BUS_FMT_SGBRG12_1X16:
+	case MEDIA_BUS_FMT_SBGGR12_1X16:
+		*mode_list = supported_modes_16bit;
+		*num_modes = ARRAY_SIZE(supported_modes_16bit);
+		break;
 	/* 12-bit */
 	case MEDIA_BUS_FMT_SRGGB12_1X12:
 	case MEDIA_BUS_FMT_SGRBG12_1X12:
