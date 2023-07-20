@@ -25,7 +25,7 @@ jobs:
       run: |
         export DEBIAN_FRONTEND=noninteractive
         dpkg --add-architecture arm64
-        apt-get update && apt-get install -y debian-keyring gnupg make apt-key
+        apt-get update && apt-get install -y debian-keyring gnupg make
         #gpg --keyserver https://keys.openpgp.org --recv-keys 82B129927FA3303E
         #gpg --armor --export 82B129927FA3303E | apt-key add -
         sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 82B129927FA3303E
