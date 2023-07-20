@@ -26,8 +26,8 @@ jobs:
         export DEBIAN_FRONTEND=noninteractive
         dpkg --add-architecture arm64
         apt-get update && apt-get install -y debian-keyring gnupg make
-        gpg --keyserver https://keys.openpgp.org --recv-keys 82B129927FA3303E
-        gpg --armor --export 82B129927FA3303E | apt-key add -
+        #gpg --keyserver https://keys.openpgp.org --recv-keys 82B129927FA3303E
+        #gpg --armor --export 82B129927FA3303E | apt-key add -
         echo 'deb http://archive.raspberrypi.org/debian/ bullseye main' > /etc/apt/sources.list.d/raspi.list
 
     - name: Install dependancies
