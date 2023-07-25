@@ -37,7 +37,7 @@
 #define IMX585_MODE_STANDBY			0x01
 #define IMX585_MODE_STREAMING		0x00
 
-#define IMX585_XCLK_FREQ			37125000
+#define IMX585_XCLK_FREQ			74250000//37125000
 
 /* VMAX internal VBLANK*/
 #define IMX585_REG_VMAX				0x3028
@@ -72,7 +72,7 @@
 #define IMX585_EMBEDDED_LINE_WIDTH 	16384
 #define IMX585_NUM_EMBEDDED_LINES 	1
 
-#define IMX585_PIXEL_RATE 48000000
+#define IMX585_PIXEL_RATE 24000000//48000000
 
 enum pad_types {
 	IMAGE_PAD,
@@ -414,7 +414,7 @@ static const struct imx585_reg mode_4k_regs[] = {
 static const struct imx585_reg mode_1080_regs[] = {
     {0x301A, 0x10}, //WDMODE C-HDR
     {0x301B, 0x01}, //ADDMODE 0x01 binning
-	{0x3014, 0x01},// INCK_SEL [3:0] 37.127 MHz
+	{0x3014, 0x00},// INCK_SEL [3:0] 74.25 MHz
     {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
 	
 	{0x3023, 0x03}, // MDBIT RAW16
@@ -866,9 +866,12 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			shr = calculate_shr(ctrl->val, imx585->HMAX, imx585->VMAX, 0, 209);
 			dev_info(&client->dev,"\tSHR:%lld\n",shr);
 			ret = imx585_write_reg_2byte(imx585, IMX585_REG_SHR, shr);
+			
+			ret = imx585_write_reg_2byte(imx585, 0x36D0, 4095);
+			ret = imx585_write_reg_2byte(imx585, 0x36D4, 4095);
 		}
 		break;
-        case V4L2_CID_ANALOGUE_GAIN:
+	case V4L2_CID_ANALOGUE_GAIN:
 		dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN : %d\n",ctrl->val);
                 ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, ctrl->val);
                 break;
