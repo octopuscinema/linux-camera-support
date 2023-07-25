@@ -140,6 +140,7 @@ static const struct imx585_reg mode_common_regs[] = {
     {0x3069, 0x00},
     //{0x3069, 0x02}, // for C-HDR mode
     {0x3074, 0x64},
+	{0x30D5, 0x04}, // DIG_CLP_VSTART
     // {0x3074, 0x63}, // for C-HDR
     {0x3930, 0x0c},//DUR normal mode 12bit
     {0x3931, 0x01},//DUR normal mode 12bit
@@ -427,6 +428,7 @@ static const struct imx585_reg mode_1080_regs[] = {
 	{0x3081, 0x04}, // EXP_GAIN, C-HDR high gain setting, 0x04 24dB
     
 	{0x30A6, 0x0F},// XVS_DRV [1:0] Hi-Z
+	{0x30D5, 0x02}, // DIG_CLP_VSTART
     {0x3460, 0x21},// -
     {0x3478, 0xA1},// -
     {0x347C, 0x01},// -
