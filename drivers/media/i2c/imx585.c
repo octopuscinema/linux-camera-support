@@ -37,7 +37,7 @@
 #define IMX585_MODE_STANDBY			0x01
 #define IMX585_MODE_STREAMING		0x00
 
-#define IMX585_XCLK_FREQ			74250000//37125000
+#define IMX585_XCLK_FREQ			37125000
 
 /* VMAX internal VBLANK*/
 #define IMX585_REG_VMAX				0x3028
@@ -72,7 +72,7 @@
 #define IMX585_EMBEDDED_LINE_WIDTH 	16384
 #define IMX585_NUM_EMBEDDED_LINES 	1
 
-#define IMX585_PIXEL_RATE 24000000//48000000
+#define IMX585_PIXEL_RATE 48000000
 
 enum pad_types {
 	IMAGE_PAD,
@@ -414,7 +414,7 @@ static const struct imx585_reg mode_4k_regs[] = {
 static const struct imx585_reg mode_1080_regs[] = {
     {0x301A, 0x10}, //WDMODE C-HDR
     {0x301B, 0x01}, //ADDMODE 0x01 binning
-	{0x3014, 0x00},// INCK_SEL [3:0] 74.25 MHz
+	{0x3014, 0x01},// INCK_SEL [3:0] 37.125 MHz
     {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
 	
 	{0x3023, 0x03}, // MDBIT RAW16
@@ -425,7 +425,7 @@ static const struct imx585_reg mode_1080_regs[] = {
 	{0x3040, 0x03},// LANEMODE [2:0] 4 lane
     {0x3069, 0x02}, // for C-HDR mode
     {0x3074, 0x63}, // for C-HDR
-	{0x3081, 0x04}, // EXP_GAIN, C-HDR high gain setting, 0x04 24dB
+	{0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, 0x01 6dB
     
 	{0x30A6, 0x0F},// XVS_DRV [1:0] Hi-Z
 	{0x30D5, 0x02}, // DIG_CLP_VSTART
@@ -443,7 +443,7 @@ static const struct imx585_reg mode_1080_regs[] = {
     {0x3A51, 0x02},// 
     
     {0x3E10, 0x17},// ADTHEN Clear HDR
-    {0x493C, 0x0C},// WAIT_10_SHF C-HDR 10-bit 0x0C disable
+    {0x493C, 0x41},// WAIT_10_SHF C-HDR 10-bit 0x0C disable
     {0x4940, 0x41},// WAIT_12_SHF C-HDR 12-bit 0x41 enable
 };
 
