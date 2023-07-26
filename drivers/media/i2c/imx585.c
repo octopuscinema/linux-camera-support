@@ -174,7 +174,7 @@ static const struct imx585_reg mode_common_regs[] = {
     // {0x3029, 0x11},// VMAX
     // {0x302A, 0x00},// VMAX
     // {0x3050, 0xFF},// SHR0 [19:0]
-    {0x30A6, 0x0F},// XVS_DRV [1:0] Hi-Z
+    {0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
     {0x3460, 0x21},// -
     {0x3478, 0xA1},// -
     {0x347C, 0x01},// -
@@ -425,9 +425,9 @@ static const struct imx585_reg mode_1080_regs[] = {
 	{0x3040, 0x03},// LANEMODE [2:0] 4 lane
     {0x3069, 0x02}, // for C-HDR mode
     {0x3074, 0x63}, // for C-HDR
-	{0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, 0x01 6dB
+	{0x3081, 0x04}, // EXP_GAIN, C-HDR high gain setting, 0x04 24dB
     
-	{0x30A6, 0x0F},// XVS_DRV [1:0] Hi-Z
+	{0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
 	{0x30D5, 0x02}, // DIG_CLP_VSTART
     {0x3460, 0x21},// -
     {0x3478, 0xA1},// -
@@ -866,15 +866,12 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			shr = calculate_shr(ctrl->val, imx585->HMAX, imx585->VMAX, 0, 209);
 			dev_info(&client->dev,"\tSHR:%lld\n",shr);
 			ret = imx585_write_reg_2byte(imx585, IMX585_REG_SHR, shr);
-			
-			ret = imx585_write_reg_2byte(imx585, 0x36D0, 4095);
-			ret = imx585_write_reg_2byte(imx585, 0x36D4, 4095);
 		}
 		break;
 	case V4L2_CID_ANALOGUE_GAIN:
 		dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN : %d\n",ctrl->val);
-                ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, ctrl->val);
-                break;
+		ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, ctrl->val);
+		break;
 
 	/* case V4L2_CID_ANALOGUE_GAIN:
 		dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN : %d\n",ctrl->val);
