@@ -175,6 +175,7 @@ static const struct imx585_reg mode_common_regs[] = {
     // {0x302A, 0x00},// VMAX
     // {0x3050, 0xFF},// SHR0 [19:0]
     {0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
+	{0x3081, 0x00},// EXP_GAIN, Reset to 0
     {0x3460, 0x21},// -
     {0x3478, 0xA1},// -
     {0x347C, 0x01},// -
@@ -425,7 +426,7 @@ static const struct imx585_reg mode_1080_regs[] = {
 	{0x3040, 0x03},// LANEMODE [2:0] 4 lane
     {0x3069, 0x02}, // for C-HDR mode
     {0x3074, 0x63}, // for C-HDR
-	{0x3081, 0x04}, // EXP_GAIN, C-HDR high gain setting, 0x04 24dB
+	{0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, +6dB
     
 	{0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
 	{0x30D5, 0x02}, // DIG_CLP_VSTART
