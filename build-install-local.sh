@@ -10,6 +10,10 @@ set -x
 # Non interactive mode
 export DEBIAN_FRONTEND=noninteractive
 
+# Install kernel building dependancies
+sudo apt-get update
+sudo apt-get install -qq raspberrypi-kernel-headers
+
 # Build imx585 driver
 cd ./drivers/media/i2c
 make
