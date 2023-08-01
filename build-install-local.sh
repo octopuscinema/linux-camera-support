@@ -25,3 +25,6 @@ cd ../../../drivers/media/platform/bcm2835
 make
 xz -f bcm2835-unicam.ko
 sudo cp bcm2835-unicam.ko.xz /usr/lib/modules/$(uname -r)/kernel/drivers/media/platform/bcm2835/bcm2835-unicam.ko.xz
+
+# Detect the new modules
+sudo depmod -a
