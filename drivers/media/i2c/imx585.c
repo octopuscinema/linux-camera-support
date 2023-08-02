@@ -30,41 +30,41 @@
 #endif
 
 /* Chip ID */
-#define IMX585_REG_CHIP_ID			0x3000
-#define IMX585_CHIP_ID				0x0000
+#define IMX585_REG_CHIP_ID		0x3000
+#define IMX585_CHIP_ID			0x0000
 
 #define IMX585_REG_MODE_SELECT		0x3000
-#define IMX585_MODE_STANDBY			0x01
+#define IMX585_MODE_STANDBY		0x01
 #define IMX585_MODE_STREAMING		0x00
 
-#define IMX585_XCLK_FREQ			37125000
+#define IMX585_XCLK_FREQ		37125000
 
 /* VMAX internal VBLANK*/
-#define IMX585_REG_VMAX				0x3028
-#define IMX585_VMAX_MAX				0xfffff
+#define IMX585_REG_VMAX			0x3028
+#define IMX585_VMAX_MAX			0xfffff
 
 /* HMAX internal HBLANK*/
-#define IMX585_REG_HMAX				0x302C
-#define IMX585_HMAX_MAX				0xffff
+#define IMX585_REG_HMAX			0x302C
+#define IMX585_HMAX_MAX			0xffff
 
 /* SHR internal */
-#define IMX585_REG_SHR				0x3050
-#define IMX585_SHR_MIN				11
+#define IMX585_REG_SHR			0x3050
+#define IMX585_SHR_MIN			11
 
 /* Exposure control */
-#define IMX585_EXPOSURE_MIN			52
+#define IMX585_EXPOSURE_MIN		52
 #define IMX585_EXPOSURE_STEP		1
 #define IMX585_EXPOSURE_DEFAULT		1000
-#define IMX585_EXPOSURE_MAX			49865
+#define IMX585_EXPOSURE_MAX		49865
 
 /* Analog gain control */
 #define IMX585_REG_ANALOG_GAIN		0x306C
-#define IMX585_ANA_GAIN_MIN			1
-#define IMX585_ANA_GAIN_MAX			240 // x3980= 72db = 0.3db x 240
+#define IMX585_ANA_GAIN_MIN		0
+#define IMX585_ANA_GAIN_MAX		240 // x3980= 72db = 0.3db x 240
 #define IMX585_ANA_GAIN_STEP		1
-#define IMX585_ANA_GAIN_DEFAULT		1
+#define IMX585_ANA_GAIN_DEFAULT		0
 
-// #define IMX585_REG_VFLIP			0x3021
+// #define IMX585_REG_VFLIP		0x3021
 #define IMX585_FLIP_WINMODEH    	0x3020
 #define IMX585_FLIP_WINMODEV    	0x3021
 
@@ -72,7 +72,7 @@
 #define IMX585_EMBEDDED_LINE_WIDTH 	16384
 #define IMX585_NUM_EMBEDDED_LINES 	1
 
-#define IMX585_PIXEL_RATE 48000000
+#define IMX585_PIXEL_RATE 		48000000
 
 enum pad_types {
 	IMAGE_PAD,
@@ -81,7 +81,7 @@ enum pad_types {
 };
 
 /* imx585 native and active pixel array size. */
-#define IMX585_NATIVE_WIDTH			3856U
+#define IMX585_NATIVE_WIDTH		3856U
 #define IMX585_NATIVE_HEIGHT		2180U
 #define IMX585_PIXEL_ARRAY_LEFT		8U
 #define IMX585_PIXEL_ARRAY_TOP		4U
