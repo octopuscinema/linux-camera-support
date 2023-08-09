@@ -164,7 +164,7 @@ static const struct imx585_reg mode_common_regs[] = {
 
 
     {0x3014, 0x01},// INCK_SEL [3:0] 37.127 MHz
-    {0x3015, 0x04},// DATARATE_SEL [3:0]  1188 Mbps
+    {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
     // {0x302C, 0x4C},// HMAX [15:0]
     // {0x302D, 0x04},// 
     {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
@@ -454,7 +454,7 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		/* 4K30 All pixel */
 		.width = 3856,
 		.height = 2180,
-		.min_HMAX = 760,
+		.min_HMAX = 660,
 		//.min_HMAX = 550, // C-HDR original
 		.min_VMAX = 2250,
 		//.min_VMAX = 4500, // C-HDR original
@@ -881,7 +881,7 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 	case V4L2_CID_VBLANK:
 		{
 		dev_info(&client->dev,"V4L2_CID_VBLANK : %d\n",ctrl->val);
-		imx585 -> VMAX = ((u64)mode->height + ctrl->val) ;
+		imx585 -> VMAX = ((u64)mode->height + ctrl->val);
 		dev_info(&client->dev,"\tVMAX : %d\n",imx585 -> VMAX);
 		ret = imx585_write_reg_3byte(imx585, IMX585_REG_VMAX, imx585 -> VMAX);
 		}
