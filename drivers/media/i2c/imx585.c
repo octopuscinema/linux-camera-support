@@ -65,7 +65,8 @@
 #define IMX585_ANA_GAIN_STEP		1
 #define IMX585_ANA_GAIN_DEFAULT		0
 #define IMX585_ANA_GAIN_HCG_LEVEL 	51 // = 15.3db / 0.3db
-#define IMX585_ANA_GAIN_HCG_MIN		29
+#define IMX585_ANA_GAIN_HCG_THRESHOLD (IMX585_ANA_GAIN_HCG_LEVEL+29)
+#define IMX585_ANA_GAIN_HCG_MIN		34
 
 // #define IMX585_REG_VFLIP		0x3021
 #define IMX585_FLIP_WINMODEH    	0x3020
@@ -947,22 +948,17 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 
 			// Use HCG mode when gain is over the HGC level
 			// This can only be done when ClearHDR is disabled
-			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, ClearHDR: %d\n",gain, (int)mode->clear_HDR);
-
-			if (!mode->clear_HDR && gain >= (IMX585_ANA_GAIN_HCG_LEVEL+IMX585_ANA_GAIN_HCG_MIN) ) {
+			if (!mode->clear_HDR && gain >= IMX585_ANA_GAIN_HCG_THRESHOLD) {
 				useHGC = true;
 				gain -= IMX585_ANA_GAIN_HCG_LEVEL;
+				if ( gain < IMX585_ANA_GAIN_HCG_MIN )
+					gain = IMX585_ANA_GAIN_HCG_MIN;
 			}
-
-			ret = imx585_write_reg_1byte(imx585, IMX585_REG_FDG_SEL0, (u16)(useHGC ? 0x01 : 0x00));
-
-			if (ret) {
-				dev_err_ratelimited(&client->dev,
-						    "Failed to write reg 0x%4.4x. error = %d\n",
-						    IMX585_REG_FDG_SEL0, ret);
-			}
-
 			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, HGC: %d\n",gain, (int)useHGC);
+			ret = imx585_write_reg_1byte(imx585, IMX585_REG_FDG_SEL0, (u16)(useHGC ? 0x01 : 0x00));
+			if (ret) {
+				dev_err_ratelimited(&client->dev, "Failed to write reg 0x%4.4x. error = %d\n", IMX585_REG_FDG_SEL0, ret);
+			}
 			ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, gain);
 		}
 		break;
