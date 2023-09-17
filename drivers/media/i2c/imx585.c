@@ -946,22 +946,31 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 
 			// Use HCG mode when gain is over the HGC level
 			// This can only be done when ClearHDR is disabled
+			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, ClearHDR: %d\n",gain, (int)mode->clear_HDR);
+
 			if (!mode->clear_HDR && gain >= IMX585_ANA_GAIN_HCG_LEVEL ) {
 				useHGC = true;
 				gain -= IMX585_ANA_GAIN_HCG_LEVEL;
 			}
 
-			imx585_write_reg_1byte(imx585, IMX585_REG_FDG_SEL0, useHGC ? 0x01 : 0x00);
-			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, HGC: %d\n",gain, useHGC);
+			ret = imx585_write_reg_1byte(imx585, IMX585_REG_FDG_SEL0, (u16)(useHGC ? 0x01 : 0x00));
+
+			if (ret) {
+				dev_err_ratelimited(&client->dev,
+						    "Failed to write reg 0x%4.4x. error = %d\n",
+						    IMX585_REG_FDG_SEL0, ret);
+			}
+
+			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, HGC: %d\n",gain, (int)useHGC);
 			ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, gain);
 		}
 		break;
 	case V4L2_CID_VBLANK:
 		{
-		dev_info(&client->dev,"V4L2_CID_VBLANK : %d\n",ctrl->val);
-		imx585 -> VMAX = ((u64)mode->height + ctrl->val);
-		dev_info(&client->dev,"\tVMAX : %d\n",imx585 -> VMAX);
-		ret = imx585_write_reg_3byte(imx585, IMX585_REG_VMAX, imx585 -> VMAX);
+			dev_info(&client->dev,"V4L2_CID_VBLANK : %d\n",ctrl->val);
+			imx585 -> VMAX = ((u64)mode->height + ctrl->val);
+			dev_info(&client->dev,"\tVMAX : %d\n",imx585 -> VMAX);
+			ret = imx585_write_reg_3byte(imx585, IMX585_REG_VMAX, imx585 -> VMAX);
 		}
 		break;
 	case V4L2_CID_HBLANK:
