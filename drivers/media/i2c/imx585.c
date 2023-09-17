@@ -59,10 +59,12 @@
 
 /* Analog gain control */
 #define IMX585_REG_ANALOG_GAIN		0x306C
-#define IMX585_ANA_GAIN_MIN		0
-#define IMX585_ANA_GAIN_MAX		240 // x3980= 72db = 0.3db x 240
+#define IMX585_REG_FDG_SEL0			0x3030
+#define IMX585_ANA_GAIN_MIN			0
+#define IMX585_ANA_GAIN_MAX			240 // x3980= 72db = 0.3db x 240
 #define IMX585_ANA_GAIN_STEP		1
 #define IMX585_ANA_GAIN_DEFAULT		0
+#define IMX585_ANA_GAIN_HCG_LEVEL 	51 // = 15.3db / 0.3db
 
 // #define IMX585_REG_VFLIP		0x3021
 #define IMX585_FLIP_WINMODEH    	0x3020
@@ -106,6 +108,9 @@ struct imx585_mode {
 	/* Frame height */
 	unsigned int height;
 
+	/* mode uses Clear HDR */
+	bool clear_HDR;
+
 	/* minimum H-timing */
 	uint64_t min_HMAX;
 
@@ -128,6 +133,7 @@ struct imx585_mode {
 	struct IMX585_reg_list reg_list;
 };
 
+/* Common Modes */
 static const struct imx585_reg mode_common_regs[] = {
     {0x3000, 0x01}, //standby
     {0x3002, 0x01},
@@ -411,8 +417,45 @@ static const struct imx585_reg mode_4k_regs[] = {
 
 };
 
+/* All pixel 4K30. 16-bit (Clear HDR) */
+static const struct imx585_reg mode_4k_16bit_regs[] = {
+    {0x301A, 0x10}, //WDMODE C-HDR
+    {0x301B, 0x00}, //ADDMODE 0x00 non-binning
+	{0x3014, 0x01},// INCK_SEL [3:0] 37.125 MHz
+    {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
+	
+	{0x3023, 0x03}, // MDBIT RAW16
+    {0x3024, 0x02}, // COMBI_EN 
+	
+	{0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
+	
+	{0x3040, 0x03},// LANEMODE [2:0] 4 lane
+    {0x3069, 0x02}, // for C-HDR mode
+    {0x3074, 0x63}, // for C-HDR
+	{0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, +6dB
+    
+	{0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
+	{0x30D5, 0x02}, // DIG_CLP_VSTART
+    {0x3460, 0x21},// -
+    {0x3478, 0xA1},// -
+    {0x347C, 0x01},// -
+    {0x3480, 0x01},// -
+	
+    {0x3930, 0xE6},//DUR Clear HDR 12bit
+    {0x3931, 0x00},//DUR Clear HDR 12bit
+    
+    {0x3A4C, 0x61},// WAIT_ST0
+    {0x3A4D, 0x02},// 
+    {0x3A50, 0x70},// WAIT_ST1
+    {0x3A51, 0x02},// 
+    
+    {0x3E10, 0x17},// ADTHEN Clear HDR
+    {0x493C, 0x41},// WAIT_10_SHF C-HDR 10-bit 0x0C disable
+    {0x4940, 0x41},// WAIT_12_SHF C-HDR 12-bit 0x41 enable
+};
+
 /* 2x2 binned 1080p30. 16-bit (Clear HDR) */
-static const struct imx585_reg mode_1080_regs[] = {
+static const struct imx585_reg mode_1080_16bit_regs[] = {
     {0x301A, 0x10}, //WDMODE C-HDR
     {0x301B, 0x01}, //ADDMODE 0x01 binning
 	{0x3014, 0x01},// INCK_SEL [3:0] 37.125 MHz
@@ -454,6 +497,7 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		/* 4K30 All pixel */
 		.width = 3856,
 		.height = 2180,
+		.clear_HDR = false,
 		.min_HMAX = 660,
 		//.min_HMAX = 550, // C-HDR original
 		.min_VMAX = 2250,
@@ -481,6 +525,7 @@ static const struct imx585_mode supported_modes_16bit[] = {
 		/* 1080p30 2x2 binning */
 		.width = 1928,
 		.height = 1090,
+		.clear_HDR = true,
 		//.min_HMAX = 760,
 		.min_HMAX = 550, // C-HDR original
 		//.min_VMAX = 2250,
@@ -497,8 +542,33 @@ static const struct imx585_mode supported_modes_16bit[] = {
 			.height = IMX585_PIXEL_ARRAY_HEIGHT,
 		},
 		.reg_list = {
-			.num_of_regs = ARRAY_SIZE(mode_1080_regs),
-			.regs = mode_1080_regs,
+			.num_of_regs = ARRAY_SIZE(mode_1080_16bit_regs),
+			.regs = mode_1080_16bit_regs,
+		},
+	},
+	{
+		/* 4K30 All pixel */
+		.width = 3856,
+		.height = 2180,
+		.clear_HDR = true,
+		//.min_HMAX = 760,
+		.min_HMAX = 550, // C-HDR original
+		//.min_VMAX = 2250,
+		.min_VMAX = 4500, // C-HDR original
+		.default_HMAX = 550,
+		.default_VMAX = 4500,
+		// .default_HMAX = 550,
+		// .default_VMAX = 4500,
+		.min_SHR = 20,
+		.crop = {
+			.left = IMX585_PIXEL_ARRAY_LEFT,
+			.top = IMX585_PIXEL_ARRAY_TOP,
+			.width = IMX585_PIXEL_ARRAY_WIDTH,
+			.height = IMX585_PIXEL_ARRAY_HEIGHT,
+		},
+		.reg_list = {
+			.num_of_regs = ARRAY_SIZE(mode_4k_16bit_regs),
+			.regs = mode_4k_16bit_regs,
 		},
 	},
 };
@@ -870,14 +940,22 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 		}
 		break;
 	case V4L2_CID_ANALOGUE_GAIN:
-		dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN : %d\n",ctrl->val);
-		ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, ctrl->val);
-		break;
+		{
+			int gain = ctrl->val;
+			bool useHGC = false;
 
-	/* case V4L2_CID_ANALOGUE_GAIN:
-		dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN : %d\n",ctrl->val);
-		ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, ctrl->val);
-		break; */
+			// Use HCG mode when gain is over the HGC level
+			// This can only be done when ClearHDR is disabled
+			if (!mode->clear_HDR && gain >= IMX585_ANA_GAIN_HCG_LEVEL ) {
+				useHGC = true;
+				gain -= IMX585_ANA_GAIN_HCG_LEVEL;
+			}
+
+			imx585_write_reg_1byte(imx585, IMX585_REG_FDG_SEL0, useHGC ? 0x01 : 0x00);
+			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, HGC: %d\n",gain, useHGC);
+			ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, gain);
+		}
+		break;
 	case V4L2_CID_VBLANK:
 		{
 		dev_info(&client->dev,"V4L2_CID_VBLANK : %d\n",ctrl->val);
