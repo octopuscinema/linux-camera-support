@@ -65,6 +65,7 @@
 #define IMX585_ANA_GAIN_STEP		1
 #define IMX585_ANA_GAIN_DEFAULT		0
 #define IMX585_ANA_GAIN_HCG_LEVEL 	51 // = 15.3db / 0.3db
+#define IMX585_ANA_GAIN_HCG_MIN		34
 
 // #define IMX585_REG_VFLIP		0x3021
 #define IMX585_FLIP_WINMODEH    	0x3020
@@ -948,7 +949,7 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			// This can only be done when ClearHDR is disabled
 			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, ClearHDR: %d\n",gain, (int)mode->clear_HDR);
 
-			if (!mode->clear_HDR && gain >= IMX585_ANA_GAIN_HCG_LEVEL ) {
+			if (!mode->clear_HDR && gain >= (IMX585_ANA_GAIN_HCG_LEVEL+IMX585_ANA_GAIN_HCG_MIN) ) {
 				useHGC = true;
 				gain -= IMX585_ANA_GAIN_HCG_LEVEL;
 			}
