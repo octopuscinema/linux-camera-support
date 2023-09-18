@@ -37,7 +37,7 @@
 #define IMX585_MODE_STANDBY		0x01
 #define IMX585_MODE_STREAMING		0x00
 
-#define IMX585_XCLK_FREQ		37125000
+#define IMX585_XCLK_FREQ		24000000
 
 /* VMAX internal VBLANK*/
 #define IMX585_REG_VMAX			0x3028
@@ -59,13 +59,13 @@
 
 /* Analog gain control */
 #define IMX585_REG_ANALOG_GAIN		0x306C
-#define IMX585_REG_FDG_SEL0			0x3030
-#define IMX585_ANA_GAIN_MIN			0
-#define IMX585_ANA_GAIN_MAX			240 // x3980= 72db = 0.3db x 240
+#define IMX585_REG_FDG_SEL0		0x3030
+#define IMX585_ANA_GAIN_MIN		0
+#define IMX585_ANA_GAIN_MAX		240 // x3980= 72db = 0.3db x 240
 #define IMX585_ANA_GAIN_STEP		1
 #define IMX585_ANA_GAIN_DEFAULT		0
-#define IMX585_ANA_GAIN_HCG_LEVEL 	51 // = 15.3db / 0.3db
-#define IMX585_ANA_GAIN_HCG_THRESHOLD (IMX585_ANA_GAIN_HCG_LEVEL+29)
+#define IMX585_ANA_GAIN_HCG_LEVEL	51 // = 15.3db / 0.3db
+#define IMX585_ANA_GAIN_HCG_THRESHOLD	(IMX585_ANA_GAIN_HCG_LEVEL+29)
 #define IMX585_ANA_GAIN_HCG_MIN		34
 
 // #define IMX585_REG_VFLIP		0x3021
@@ -76,7 +76,7 @@
 #define IMX585_EMBEDDED_LINE_WIDTH 	16384
 #define IMX585_NUM_EMBEDDED_LINES 	1
 
-#define IMX585_PIXEL_RATE 		48000000
+#define IMX585_PIXEL_RATE 		74250000
 
 enum pad_types {
 	IMAGE_PAD,
@@ -171,7 +171,7 @@ static const struct imx585_reg mode_common_regs[] = {
 
 
 
-    {0x3014, 0x01},// INCK_SEL [3:0] 37.127 MHz
+    {0x3014, 0x04},// INCK_SEL [3:0] 24 MHz
     {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
     // {0x302C, 0x4C},// HMAX [15:0]
     // {0x302D, 0x04},// 
@@ -423,21 +423,21 @@ static const struct imx585_reg mode_4k_regs[] = {
 static const struct imx585_reg mode_4k_16bit_regs[] = {
     {0x301A, 0x10}, //WDMODE C-HDR
     {0x301B, 0x00}, //ADDMODE 0x00 non-binning
-	{0x3014, 0x01},// INCK_SEL [3:0] 37.125 MHz
-    {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
+    {0x3014, 0x04},// INCK_SEL [3:0] 24 MHz
+    {0x3015, 0x03},// DATARATE_SEL [3:0] 1440 Mbps
 	
-	{0x3023, 0x03}, // MDBIT RAW16
+    {0x3023, 0x03}, // MDBIT RAW16
     {0x3024, 0x02}, // COMBI_EN 
 	
-	{0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
+    {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
 	
-	{0x3040, 0x03},// LANEMODE [2:0] 4 lane
+    {0x3040, 0x03},// LANEMODE [2:0] 4 lane
     {0x3069, 0x02}, // for C-HDR mode
     {0x3074, 0x63}, // for C-HDR
-	{0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, +6dB
+    {0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, +6dB
     
-	{0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
-	{0x30D5, 0x02}, // DIG_CLP_VSTART
+    {0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
+    {0x30D5, 0x02}, // DIG_CLP_VSTART
     {0x3460, 0x21},// -
     {0x3478, 0xA1},// -
     {0x347C, 0x01},// -
@@ -460,21 +460,21 @@ static const struct imx585_reg mode_4k_16bit_regs[] = {
 static const struct imx585_reg mode_1080_16bit_regs[] = {
     {0x301A, 0x10}, //WDMODE C-HDR
     {0x301B, 0x01}, //ADDMODE 0x01 binning
-	{0x3014, 0x01},// INCK_SEL [3:0] 37.125 MHz
-    {0x3015, 0x03},// DATARATE_SEL [3:0]  1440 Mbps
+    {0x3014, 0x04},// INCK_SEL [3:0] 24 MHz
+    {0x3015, 0x03},// DATARATE_SEL [3:0] 1440 Mbps
 	
-	{0x3023, 0x03}, // MDBIT RAW16
+    {0x3023, 0x03}, // MDBIT RAW16
     {0x3024, 0x02}, // COMBI_EN 
 	
-	{0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
+    {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
 	
-	{0x3040, 0x03},// LANEMODE [2:0] 4 lane
+    {0x3040, 0x03},// LANEMODE [2:0] 4 lane
     {0x3069, 0x02}, // for C-HDR mode
     {0x3074, 0x63}, // for C-HDR
-	{0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, +6dB
+    {0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, +6dB
     
-	{0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
-	{0x30D5, 0x02}, // DIG_CLP_VSTART
+    {0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
+    {0x30D5, 0x02}, // DIG_CLP_VSTART
     {0x3460, 0x21},// -
     {0x3478, 0xA1},// -
     {0x347C, 0x01},// -
@@ -501,13 +501,9 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		.height = 2180,
 		.clear_HDR = false,
 		.min_HMAX = 660,
-		//.min_HMAX = 550, // C-HDR original
 		.min_VMAX = 2250,
-		//.min_VMAX = 4500, // C-HDR original
-		.default_HMAX = 550,
-		.default_VMAX = 4500,
-		// .default_HMAX = 550,
-		// .default_VMAX = 4500,
+		.default_HMAX = 660,
+		.default_VMAX = 2250,
 		.min_SHR = 20,
 		.crop = {
 			.left = IMX585_PIXEL_ARRAY_LEFT,
