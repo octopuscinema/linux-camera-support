@@ -958,15 +958,14 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			}
 			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, HGC: %d\n",gain, (int)useHGC);
 
-			// Set HGC/LCG channel
-			imx585_register_hold(imx585, true);
-			ret = imx585_write_reg_1byte(imx585, IMX585_REG_FDG_SEL0, (u16)(useHGC ? 0x01 : 0x00));
-			if (ret) {
-				dev_err_ratelimited(&client->dev, "Failed to write reg 0x%4.4x. error = %d\n", IMX585_REG_FDG_SEL0, ret);
-			}
-
 			// Apply gain
+			imx585_register_hold(imx585, true);
 			ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, gain);
+			if (ret)
+				dev_err_ratelimited(&client->dev, "Failed to write reg 0x%4.4x. error = %d\n", IMX585_REG_ANALOG_GAIN, ret);
+			
+			// Set HGC/LCG channel			
+			ret = imx585_write_reg_1byte(imx585, IMX585_REG_FDG_SEL0, (u16)(useHGC ? 0x01 : 0x00));
 			imx585_register_hold(imx585, false);
 		}
 		break;
