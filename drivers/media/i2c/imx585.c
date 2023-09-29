@@ -434,7 +434,7 @@ static const struct imx585_reg mode_4k_16bit_regs[] = {
     {0x3040, 0x03},// LANEMODE [2:0] 4 lane
     {0x3069, 0x02}, // for C-HDR mode
     {0x3074, 0x63}, // for C-HDR
-    {0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, +6dB
+    {0x3081, 0x02}, // EXP_GAIN, C-HDR high gain setting, +12dB
     
     {0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
     {0x30D5, 0x02}, // DIG_CLP_VSTART
@@ -471,7 +471,7 @@ static const struct imx585_reg mode_1080_16bit_regs[] = {
     {0x3040, 0x03},// LANEMODE [2:0] 4 lane
     {0x3069, 0x02}, // for C-HDR mode
     {0x3074, 0x63}, // for C-HDR
-    {0x3081, 0x01}, // EXP_GAIN, C-HDR high gain setting, +6dB
+    {0x3081, 0x02}, // EXP_GAIN, C-HDR high gain setting, +12dB
     
     {0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
     {0x30D5, 0x02}, // DIG_CLP_VSTART
