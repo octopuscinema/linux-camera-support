@@ -798,6 +798,12 @@ static int imx585_write_regs(struct imx585 *imx585,
 	return 0;
 }
 
+/* Hold register values until hold is disabled */
+static inline void imx585_register_hold(struct imx585 *imx585, bool hold)
+{
+	imx585_write_reg_1byte(imx585, 0x3001, hold ? 1 : 0);
+}
+
 /* Get bayer order based on flip setting. */
 static u32 imx585_get_format_code(struct imx585 *imx585, u32 code)
 {
@@ -940,10 +946,10 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 	case V4L2_CID_ANALOGUE_GAIN:
 		{
 			int gain = ctrl->val;
-			bool useHGC = false;
 
 			// Use HCG mode when gain is over the HGC level
 			// This can only be done when ClearHDR is disabled
+			bool useHGC = false;
 			if (!mode->clear_HDR && gain >= IMX585_ANA_GAIN_HCG_THRESHOLD) {
 				useHGC = true;
 				gain -= IMX585_ANA_GAIN_HCG_LEVEL;
@@ -951,11 +957,17 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 					gain = IMX585_ANA_GAIN_HCG_MIN;
 			}
 			dev_info(&client->dev,"V4L2_CID_ANALOGUE_GAIN: %d, HGC: %d\n",gain, (int)useHGC);
+
+			// Set HGC/LCG channel
+			imx585_register_hold(imx585, true);
 			ret = imx585_write_reg_1byte(imx585, IMX585_REG_FDG_SEL0, (u16)(useHGC ? 0x01 : 0x00));
 			if (ret) {
 				dev_err_ratelimited(&client->dev, "Failed to write reg 0x%4.4x. error = %d\n", IMX585_REG_FDG_SEL0, ret);
 			}
+
+			// Apply gain
 			ret = imx585_write_reg_2byte(imx585, IMX585_REG_ANALOG_GAIN, gain);
+			imx585_register_hold(imx585, false);
 		}
 		break;
 	case V4L2_CID_VBLANK:
@@ -971,7 +983,6 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			u64 pixel_rate;
 			u64 hmax;
 			dev_info(&client->dev,"V4L2_CID_HBLANK : %d\n",ctrl->val);
-			//int hmax = (IMX585_NATIVE_WIDTH + ctrl->val) * 72000000; / IMX585_PIXEL_RATE;
 			pixel_rate = (u64)mode->width * IMX585_PIXEL_RATE;
 			do_div(pixel_rate,mode->min_HMAX);
 			hmax = (u64)(mode->width + ctrl->val) * IMX585_PIXEL_RATE;
