@@ -137,19 +137,18 @@ struct imx585_mode {
 
 /* Common Modes */
 static const struct imx585_reg mode_common_regs[] = {
-    {0x3000, 0x01}, //standby
     {0x3002, 0x01},
 
     {0x301A, 0x00}, //WDMODE Normal mode
-    //{0x301A, 0x10}, //WDMODE C-HDR
+    //{0x301A, 0x10}, //WDMODE Clear HDR
     {0x301B, 0x00}, //ADDMODE 0x00 non-binning
     {0x3024, 0x00}, // COMBI_EN 
-    // {0x3024, 0x02}, // COMBI_EN 0x02=C-HDR mode
+    // {0x3024, 0x02}, // COMBI_EN 0x02=Clear HDR mode
     {0x3069, 0x00},
-    //{0x3069, 0x02}, // for C-HDR mode
+    //{0x3069, 0x02}, // for Clear HDR mode
     {0x3074, 0x64},
 	{0x30D5, 0x04}, // DIG_CLP_VSTART
-    // {0x3074, 0x63}, // for C-HDR
+    // {0x3074, 0x63}, // for Clear HDR
     {0x3930, 0x0c},//DUR normal mode 12bit
     {0x3931, 0x01},//DUR normal mode 12bit
     // {0x3930, 0xE6},//DUR Clear HDR 12bit
@@ -177,7 +176,7 @@ static const struct imx585_reg mode_common_regs[] = {
     // {0x302D, 0x04},// 
     {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
     {0x3040, 0x03},// LANEMODE [2:0] 4 lane
-    {0x3023, 0x01},// RAW12
+    {0x3023, 0x01},// MDBIT 12-bit
     // {0x3028, 0x94},// VMAX
     // {0x3029, 0x11},// VMAX
     // {0x302A, 0x00},// VMAX
@@ -188,13 +187,7 @@ static const struct imx585_reg mode_common_regs[] = {
     {0x3478, 0xA1},// -
     {0x347C, 0x01},// -
     {0x3480, 0x01},// -
-    //{0x3930, 0x0C},// DUR
-    //{0x3931, 0x01},// 
-    //{0x3A4C, 0x39},// WAIT_ST0
-    //{0x3A4D, 0x01},// 
     {0x3A4E, 0x14},// -
-    //{0x3A50, 0x48},// WAIT_ST1
-    //{0x3A51, 0x01},// 
     {0x3A52, 0x14},// -
     {0x3A56, 0x00},// -
     {0x3A5A, 0x00},// -
@@ -408,95 +401,114 @@ static const struct imx585_reg mode_common_regs[] = {
     {0x5222, 0x91},// -
     {0x5224, 0x87},// -
     {0x5226, 0x82},// -
-    {0x3000, 0x00}, //standby Cancel
-
     {0xFFFE, 0x19},
     {0x3002, 0x00}, // Master mode start
 };
 
-/* All pixel 4K30. 12-bit (Normal) */
+/* All pixel 4K50. 12-bit (Normal) */
 static const struct imx585_reg mode_4k_regs[] = {
+	{0x301A, 0x00}, // WDMODE Normal mode
+	{0x301B, 0x00}, // ADDMODE non-binning
+	{0x3023, 0x01}, // MDBIT 12-bit
+	{0x3024, 0x00}, // COMBI_EN no HDR combining
+    {0x3069, 0x00}, // Normal mode
+	
+	{0x3074, 0x64}, // Normal mode
+	{0x30D5, 0x04}, // DIG_CLP_VSTART non-binning
+    {0x3930, 0x0c}, // DUR normal mode 12bit
+    {0x3931, 0x01}, // DUR normal mode 12bit
+    {0x3A4C, 0x39}, // WAIT_ST0 Normal mode
+    {0x3A4D, 0x01}, // Normal mode
+    {0x3A50, 0x48}, // WAIT_ST1 Normal mode
+    {0x3A51, 0x01}, // Normal mode
+    {0x3E10, 0x10}, // ADTHEN Normal mode
+    {0x493C, 0x23}, // ADTHEN Normal mode
+    {0x4940, 0x41}, // ADTHEN Normal mode
+};
 
+/* 2x2 binned 1080p60. 12-bit (Normal) */
+static const struct imx585_reg mode_1080_regs[] = {
+	{0x301A, 0x00}, // WDMODE Normal mode
+	{0x301B, 0x01}, // ADDMODE binning
+	{0x3023, 0x01}, // MDBIT 12-bit
+	{0x3024, 0x00}, // COMBI_EN no HDR combining
+	{0x3069, 0x00}, // Normal mode
+	
+	{0x3074, 0x64}, // Normal mode
+	{0x30D5, 0x02}, // DIG_CLP_VSTART binning
+    {0x3930, 0x0c}, // DUR normal mode 12bit
+    {0x3931, 0x01}, // DUR normal mode 12bit
+    {0x3A4C, 0x39}, // WAIT_ST0 Normal mode
+    {0x3A4D, 0x01}, // Normal mode
+    {0x3A50, 0x48}, // WAIT_ST1 Normal mode
+    {0x3A51, 0x01}, // Normal mode
+    {0x3E10, 0x10}, // ADTHEN Normal mode
+    {0x493C, 0x23}, // ADTHEN Normal mode
+    {0x4940, 0x41}, // ADTHEN Normal mode
 };
 
 /* All pixel 4K30. 16-bit (Clear HDR) */
 static const struct imx585_reg mode_4k_16bit_regs[] = {
-    {0x301A, 0x10}, //WDMODE C-HDR
-    {0x301B, 0x00}, //ADDMODE 0x00 non-binning
-    {0x3014, 0x04},// INCK_SEL [3:0] 24 MHz
-    {0x3015, 0x03},// DATARATE_SEL [3:0] 1440 Mbps
+    {0x301A, 0x10}, // WDMODE Clear HDR
+    {0x301B, 0x00}, // ADDMODE Non-binning
 	
-    {0x3023, 0x03}, // MDBIT RAW16
+    {0x3023, 0x03}, // MDBIT 16-bit
     {0x3024, 0x02}, // COMBI_EN 
 	
-    {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
+    {0x3030, 0x00}, // FDG_SEL0 LCG, HCG:0x01
 	
-    {0x3040, 0x03},// LANEMODE [2:0] 4 lane
-    {0x3069, 0x02}, // for C-HDR mode
-    {0x3074, 0x63}, // for C-HDR
-    {0x3081, 0x02}, // EXP_GAIN, C-HDR high gain setting, +12dB
+    {0x3069, 0x02}, // for Clear HDR mode
+    {0x3074, 0x63}, // for Clear HDR
+    {0x3081, 0x02}, // EXP_GAIN, Clear HDR high gain setting, +12dB
     
-    {0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
-    {0x30D5, 0x02}, // DIG_CLP_VSTART
-    {0x3460, 0x21},// -
-    {0x3478, 0xA1},// -
-    {0x347C, 0x01},// -
-    {0x3480, 0x01},// -
+    {0x30D5, 0x02}, // DIG_CLP_VSTART Non-binning
 	
-    {0x3930, 0xE6},//DUR Clear HDR 12bit
-    {0x3931, 0x00},//DUR Clear HDR 12bit
+    {0x3930, 0xE6}, // DUR Clear HDR 12bit
+    {0x3931, 0x00}, // DUR Clear HDR 12bit
     
-    {0x3A4C, 0x61},// WAIT_ST0
-    {0x3A4D, 0x02},// 
-    {0x3A50, 0x70},// WAIT_ST1
-    {0x3A51, 0x02},// 
+    {0x3A4C, 0x61}, // WAIT_ST0 Clear HDR mode
+    {0x3A4D, 0x02}, // Clear HDR mode
+    {0x3A50, 0x70}, // WAIT_ST1
+    {0x3A51, 0x02}, // Clear HDR mode
     
-    {0x3E10, 0x17},// ADTHEN Clear HDR
-    {0x493C, 0x41},// WAIT_10_SHF C-HDR 10-bit 0x0C disable
-    {0x4940, 0x41},// WAIT_12_SHF C-HDR 12-bit 0x41 enable
+    {0x3E10, 0x17}, // ADTHEN Clear HDR
+    {0x493C, 0x41}, // WAIT_10_SHF Clear HDR 10-bit 0x0C disable
+    {0x4940, 0x41}, // WAIT_12_SHF Clear HDR 12-bit 0x41 enable
 };
 
 /* 2x2 binned 1080p30. 16-bit (Clear HDR) */
 static const struct imx585_reg mode_1080_16bit_regs[] = {
-    {0x301A, 0x10}, //WDMODE C-HDR
-    {0x301B, 0x01}, //ADDMODE 0x01 binning
-    {0x3014, 0x04},// INCK_SEL [3:0] 24 MHz
-    {0x3015, 0x03},// DATARATE_SEL [3:0] 1440 Mbps
+    {0x301A, 0x10}, // WDMODE Clear HDR
+    {0x301B, 0x01}, // ADDMODE Binning
 	
-    {0x3023, 0x03}, // MDBIT RAW16
-    {0x3024, 0x02}, // COMBI_EN 
+    {0x3023, 0x03}, // MDBIT 16-bit
+    {0x3024, 0x02}, // COMBI_EN Built-in HDR combining
 	
-    {0x3030, 0x00},// FDG_SEL0 LCG, HCG:0x01
+    {0x3030, 0x00}, // FDG_SEL0 LCG, HCG:0x01
 	
-    {0x3040, 0x03},// LANEMODE [2:0] 4 lane
-    {0x3069, 0x02}, // for C-HDR mode
-    {0x3074, 0x63}, // for C-HDR
-    {0x3081, 0x02}, // EXP_GAIN, C-HDR high gain setting, +12dB
+    {0x3069, 0x02}, // for Clear HDR mode
+    {0x3074, 0x63}, // for Clear HDR
+    {0x3081, 0x02}, // EXP_GAIN, Clear HDR high gain setting, +12dB
     
-    {0x30A6, 0x00},// XVS_DRV [1:0] Hi-Z
     {0x30D5, 0x02}, // DIG_CLP_VSTART
-    {0x3460, 0x21},// -
-    {0x3478, 0xA1},// -
-    {0x347C, 0x01},// -
-    {0x3480, 0x01},// -
 	
-    {0x3930, 0xE6},//DUR Clear HDR 12bit
-    {0x3931, 0x00},//DUR Clear HDR 12bit
+    {0x3930, 0xE6}, // DUR Clear HDR 12bit
+    {0x3931, 0x00}, // DUR Clear HDR 12bit
     
-    {0x3A4C, 0x61},// WAIT_ST0
-    {0x3A4D, 0x02},// 
-    {0x3A50, 0x70},// WAIT_ST1
-    {0x3A51, 0x02},// 
-    
-    {0x3E10, 0x17},// ADTHEN Clear HDR
-    {0x493C, 0x41},// WAIT_10_SHF C-HDR 10-bit 0x0C disable
-    {0x4940, 0x41},// WAIT_12_SHF C-HDR 12-bit 0x41 enable
+    {0x3A4C, 0x61}, // WAIT_ST0
+    {0x3A4D, 0x02}, // Clear HDR mode
+    {0x3A50, 0x70}, // WAIT_ST1
+    {0x3A51, 0x02}, // Clear HDR mode
+
+    {0x3E10, 0x17}, // ADTHEN Clear HDR
+    {0x493C, 0x41}, // WAIT_10_SHF Clear HDR 10-bit 0x0C disable
+    {0x4940, 0x41}, // WAIT_12_SHF Clear HDR 12-bit 0x41 enable
 };
 
 /* Mode configs */
 static const struct imx585_mode supported_modes_12bit[] = {
 	{
-		/* 4K30 All pixel */
+		/* 4K50 All pixel */
 		.width = 3856,
 		.height = 2180,
 		.clear_HDR = false,
@@ -516,6 +528,27 @@ static const struct imx585_mode supported_modes_12bit[] = {
 			.regs = mode_4k_regs,
 		},
 	},
+	{
+		/* 1080p60 2x2 binning */
+		.width = 1928,
+		.height = 1090,
+		.clear_HDR = false,
+		.min_HMAX = 550,
+		.min_VMAX = 2250,
+		.default_HMAX = 550,
+		.default_VMAX = 2250,
+		.min_SHR = 20,
+		.crop = {
+			.left = IMX585_PIXEL_ARRAY_LEFT,
+			.top = IMX585_PIXEL_ARRAY_TOP,
+			.width = IMX585_PIXEL_ARRAY_WIDTH,
+			.height = IMX585_PIXEL_ARRAY_HEIGHT,
+		},
+		.reg_list = {
+			.num_of_regs = ARRAY_SIZE(mode_1080_regs),
+			.regs = mode_1080_regs,
+		},
+	},
 };
 
 static const struct imx585_mode supported_modes_16bit[] = {
@@ -525,9 +558,9 @@ static const struct imx585_mode supported_modes_16bit[] = {
 		.height = 1090,
 		.clear_HDR = true,
 		//.min_HMAX = 760,
-		.min_HMAX = 550, // C-HDR original
+		.min_HMAX = 550, // Clear HDR original
 		//.min_VMAX = 2250,
-		.min_VMAX = 4500, // C-HDR original
+		.min_VMAX = 4500, // Clear HDR original
 		.default_HMAX = 550,
 		.default_VMAX = 4500,
 		// .default_HMAX = 550,
@@ -550,9 +583,9 @@ static const struct imx585_mode supported_modes_16bit[] = {
 		.height = 2180,
 		.clear_HDR = true,
 		//.min_HMAX = 760,
-		.min_HMAX = 550, // C-HDR original
+		.min_HMAX = 550, // Clear HDR original
 		//.min_VMAX = 2250,
-		.min_VMAX = 4500, // C-HDR original
+		.min_VMAX = 4500, // Clear HDR original
 		.default_HMAX = 550,
 		.default_VMAX = 4500,
 		// .default_HMAX = 550,
@@ -1288,8 +1321,13 @@ static int imx585_start_streaming(struct imx585 *imx585)
 
 	/* Apply customized values from user */
 	ret =  __v4l2_ctrl_handler_setup(imx585->sd.ctrl_handler);
+	if(ret) {
+		dev_err(&client->dev, "%s failed to apply user values\n", __func__);
+		return ret;
+	}
 
-	return ret;
+	/* Set stream on register */
+	return imx585_write_reg_1byte(imx585, IMX585_REG_MODE_SELECT, IMX585_MODE_STREAMING);
 }
 
 /* Stop streaming */
@@ -1301,7 +1339,7 @@ static void imx585_stop_streaming(struct imx585 *imx585)
 	/* set stream off register */
 	ret = imx585_write_reg_1byte(imx585, IMX585_REG_MODE_SELECT, IMX585_MODE_STANDBY);
 	if (ret)
-		dev_err(&client->dev, "%s failed to set stream\n", __func__);
+		dev_err(&client->dev, "%s failed to stop stream\n", __func__);
 }
 
 static int imx585_set_stream(struct v4l2_subdev *sd, int enable)
