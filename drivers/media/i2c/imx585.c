@@ -409,6 +409,7 @@ static const struct imx585_reg mode_common_regs[] = {
 static const struct imx585_reg mode_4k_regs[] = {
 	{0x301A, 0x00}, // WDMODE Normal mode
 	{0x301B, 0x00}, // ADDMODE non-binning
+	{0x3022, 0x02}, // ADBIT 12-bit
 	{0x3023, 0x01}, // MDBIT 12-bit
 	{0x3024, 0x00}, // COMBI_EN no HDR combining
     {0x3069, 0x00}, // Normal mode
@@ -430,6 +431,7 @@ static const struct imx585_reg mode_4k_regs[] = {
 static const struct imx585_reg mode_1080_regs[] = {
 	{0x301A, 0x00}, // WDMODE Normal mode
 	{0x301B, 0x01}, // ADDMODE binning
+	{0x3022, 0x00}, // ADBIT 10-bit
 	{0x3023, 0x01}, // MDBIT 12-bit
 	{0x3024, 0x00}, // COMBI_EN no HDR combining
 	{0x3069, 0x00}, // Normal mode
@@ -452,6 +454,7 @@ static const struct imx585_reg mode_4k_16bit_regs[] = {
     {0x301A, 0x10}, // WDMODE Clear HDR
     {0x301B, 0x00}, // ADDMODE Non-binning
 	
+	{0x3022, 0x02}, // ADBIT 12-bit
     {0x3023, 0x03}, // MDBIT 16-bit
     {0x3024, 0x02}, // COMBI_EN 
 	
@@ -481,6 +484,7 @@ static const struct imx585_reg mode_1080_16bit_regs[] = {
     {0x301A, 0x10}, // WDMODE Clear HDR
     {0x301B, 0x01}, // ADDMODE Binning
 	
+	{0x3022, 0x02}, // ADBIT 12-bit
     {0x3023, 0x03}, // MDBIT 16-bit
     {0x3024, 0x02}, // COMBI_EN Built-in HDR combining
 	
@@ -529,13 +533,13 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		},
 	},
 	{
-		/* 1080p60 2x2 binning */
+		/* 1080p90 2x2 binning */
 		.width = 1928,
 		.height = 1090,
 		.clear_HDR = false,
-		.min_HMAX = 550,
+		.min_HMAX = 366,
 		.min_VMAX = 2250,
-		.default_HMAX = 550,
+		.default_HMAX = 366,
 		.default_VMAX = 2250,
 		.min_SHR = 20,
 		.crop = {
