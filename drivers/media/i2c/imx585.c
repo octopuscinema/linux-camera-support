@@ -768,11 +768,13 @@ static int imx585_write_reg_1byte(struct imx585 *imx585, u16 reg, u8 val)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
 	u8 buf[3];
+	int ret;
 
 	put_unaligned_be16(reg, buf);
-	buf[2]  = val;
-	if (i2c_master_send(client, buf, 3) != 3)
-		return -EIO;
+	buf[2] = val;
+	ret = i2c_master_send(client, buf, 3);
+	if ( ret != 3 )
+		return ret;
 
 	return 0;
 }
@@ -782,12 +784,14 @@ static int imx585_write_reg_2byte(struct imx585 *imx585, u16 reg, u16 val)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
 	u8 buf[4];
+	int ret;
 
 	put_unaligned_be16(reg, buf);
-	buf[2]  = val;
-	buf[3]  = val>>8;
-	if (i2c_master_send(client, buf, 4) != 4)
-		return -EIO;
+	buf[2] = val;
+	buf[3] = val>>8;
+	ret = i2c_master_send(client, buf, 4);
+	if ( ret != 4 )
+		return ret;
 
 	return 0;
 }
