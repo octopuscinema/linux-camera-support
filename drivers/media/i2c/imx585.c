@@ -30,8 +30,8 @@
 #endif
 
 /* Chip ID */
-#define IMX585_REG_CHIP_ID			0x3000
-#define IMX585_CHIP_ID				0x0000
+#define IMX585_REG_CHIP_ID			0x30DC
+#define IMX585_CHIP_ID				0x32
 
 #define IMX585_REG_MODE_SELECT		0x3000
 #define IMX585_MODE_STANDBY			0x01
