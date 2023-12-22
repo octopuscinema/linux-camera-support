@@ -57,6 +57,10 @@
 #define IMX585_EXPOSURE_DEFAULT		1000
 #define IMX585_EXPOSURE_MAX			49865
 
+/* Black level control */
+#define IMX585_REG_BLKLEVEL			0x30DC
+#define IMX585_BLKLEVEL_DEFAULT		0
+
 /* Analog gain control */
 #define IMX585_REG_ANALOG_GAIN		0x306C
 #define IMX585_REG_FDG_SEL0			0x3030
@@ -138,7 +142,6 @@ struct imx585_mode {
 /* Common Modes */
 static const struct imx585_reg mode_common_regs[] = {
     {0x3002, 0x01},
-
     {0x301A, 0x00}, //WDMODE Normal mode
     //{0x301A, 0x10}, //WDMODE Clear HDR
     {0x301B, 0x00}, //ADDMODE 0x00 non-binning
@@ -1326,6 +1329,9 @@ static int imx585_start_streaming(struct imx585 *imx585)
 		dev_err(&client->dev, "%s failed to set mode\n", __func__);
 		return ret;
 	}
+	
+	/* Set black level */
+	imx585_write_reg_2byte(imx585, IMX585_REG_BLKLEVEL, IMX585_BLKLEVEL_DEFAULT);
 
 	/* Apply customized values from user */
 	ret =  __v4l2_ctrl_handler_setup(imx585->sd.ctrl_handler);
