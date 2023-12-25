@@ -1623,14 +1623,11 @@ static int imx585_init_controls(struct imx585 *imx585)
 			  IMX585_ANA_GAIN_STEP, IMX585_ANA_GAIN_DEFAULT);
 
 
-        imx585->hflip = v4l2_ctrl_new_std(ctrl_hdlr, &imx585_ctrl_ops,
-                                          V4L2_CID_HFLIP, 0, 1, 1, 0);
-        imx585->vflip = v4l2_ctrl_new_std(ctrl_hdlr, &imx585_ctrl_ops,
-                                          V4L2_CID_VFLIP, 0, 1, 1, 0);
+    imx585->hflip = v4l2_ctrl_new_std(ctrl_hdlr, &imx585_ctrl_ops, V4L2_CID_HFLIP, 0, 1, 1, 0);
+
+    imx585->vflip = v4l2_ctrl_new_std(ctrl_hdlr, &imx585_ctrl_ops, V4L2_CID_VFLIP, 0, 1, 1, 0);
 
 /*
-	imx585->vflip = v4l2_ctrl_new_std(ctrl_hdlr, &imx585_ctrl_ops,
-					  V4L2_CID_VFLIP, 0, 1, 1, 0);
 	if (imx585->vflip)
 		imx585->vflip->flags |= V4L2_CTRL_FLAG_MODIFY_LAYOUT;
 */
