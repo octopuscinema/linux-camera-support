@@ -929,7 +929,8 @@ Integration Time [s] = [{VMAX × (SVR + 1) – (SHR)}
 Integration Time [s] = exposure * HMAX / (72 × 10^6)
 */
 
-static uint32_t calculate_shr(uint32_t exposure, uint32_t hmax, uint64_t vmax, uint32_t svr, uint32_t offset) {
+static uint32_t calculate_shr(uint32_t exposure, uint32_t hmax, uint64_t vmax, uint32_t svr, uint32_t offset)
+{
     uint64_t temp;
     uint32_t shr;
 
@@ -942,8 +943,7 @@ static uint32_t calculate_shr(uint32_t exposure, uint32_t hmax, uint64_t vmax, u
 
 static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 {
-	struct imx585 *imx585 =
-		container_of(ctrl->handler, struct imx585, ctrl_handler);
+	struct imx585 *imx585 = container_of(ctrl->handler, struct imx585, ctrl_handler);
 	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
 	const struct imx585_mode *mode = imx585->mode;
 
@@ -974,7 +974,6 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 	if (pm_runtime_get_if_in_use(&client->dev) == 0)
 		return 0;
 
-	
 	switch (ctrl->id) {
 	case V4L2_CID_EXPOSURE:
 		{
@@ -1016,7 +1015,7 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 	case V4L2_CID_VBLANK:
 		{
 			dev_info(&client->dev,"V4L2_CID_VBLANK : %d\n",ctrl->val);
-			imx585 -> VMAX = ((u64)mode->height + ctrl->val);
+			imx585->VMAX = ((u64)mode->height + ctrl->val);
 			dev_info(&client->dev,"\tVMAX : %d\n",imx585 -> VMAX);
 			ret = imx585_write_reg_3byte(imx585, IMX585_REG_VMAX, imx585 -> VMAX);
 		}
@@ -1035,20 +1034,12 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			ret = imx585_write_reg_2byte(imx585, IMX585_REG_HMAX, hmax);
 		}
 		break;
-/* port from my own driver sohonomura2020 */
-        case V4L2_CID_HFLIP:
-                ret = imx585_write_reg_1byte(imx585, IMX585_FLIP_WINMODEH, ctrl->val);
-                break;
-        case V4L2_CID_VFLIP:
-                ret = imx585_write_reg_1byte(imx585, IMX585_FLIP_WINMODEV, ctrl->val);
-                break;
-
-/*
-	case V4L2_CID_VFLIP:
-		dev_info(&client->dev,"V4L2_CID_VFLIP : %d\n",imx585->vflip->val);
-		ret = imx585_write_reg_1byte(imx585, IMX585_REG_VFLIP, imx585->vflip->val);
+    case V4L2_CID_HFLIP:
+		ret = imx585_write_reg_1byte(imx585, IMX585_FLIP_WINMODEH, ctrl->val);
 		break;
-*/
+	case V4L2_CID_VFLIP:
+		ret = imx585_write_reg_1byte(imx585, IMX585_FLIP_WINMODEV, ctrl->val);
+		break;
 	default:
 		dev_info(&client->dev,
 			 "ctrl(id:0x%x,val:0x%x) is not handled\n",
@@ -1232,8 +1223,8 @@ static void imx585_set_framing_limits(struct imx585 *imx585)
 	__v4l2_ctrl_modify_range(imx585->pixel_rate, pixel_rate, pixel_rate, 1, pixel_rate);
 
 	dev_info(&client->dev,"Setting default HBLANK : %lld, VBLANK : %lld with PixelRate: %lld\n",def_hblank,mode->default_VMAX - mode->height, pixel_rate);
-
 }
+
 /* TODO */
 static int imx585_set_pad_format(struct v4l2_subdev *sd,
 				 struct v4l2_subdev_state *sd_state,
@@ -1288,6 +1279,7 @@ static int imx585_set_pad_format(struct v4l2_subdev *sd,
 
 	return 0;
 }
+
 /* TODO */
 static const struct v4l2_rect *
 __imx585_get_pad_crop(struct imx585 *imx585,
@@ -1585,9 +1577,6 @@ static const struct v4l2_subdev_internal_ops imx585_internal_ops = {
 	.open = imx585_open,
 };
 
-
-
-
 /* Initialize control handlers */
 static int imx585_init_controls(struct imx585 *imx585)
 {
@@ -1603,8 +1592,6 @@ static int imx585_init_controls(struct imx585 *imx585)
 
 	mutex_init(&imx585->mutex);
 	ctrl_hdlr->lock = &imx585->mutex;
-
-
 
 	/*
 	 * Create the controls here, but mode specific limits are setup
@@ -1683,7 +1670,6 @@ static void imx585_free_controls(struct imx585 *imx585)
 	v4l2_ctrl_handler_free(imx585->sd.ctrl_handler);
 	mutex_destroy(&imx585->mutex);
 }
-
 
 static const struct imx585_compatible_data imx585_compatible = {
 	.chip_id = IMX585_CHIP_ID,
