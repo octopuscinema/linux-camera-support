@@ -26,66 +26,77 @@
 
 // Support for rpi kernel pre git commit 314a685
 #ifndef MEDIA_BUS_FMT_SENSOR_DATA
-#define MEDIA_BUS_FMT_SENSOR_DATA 	0x7002
+#define MEDIA_BUS_FMT_SENSOR_DATA 		0x7002
 #endif
 
 /* Chip ID */
-#define IMX585_REG_CHIP_ID			0x30DC
-#define IMX585_CHIP_ID				0x32
+#define IMX585_REG_CHIP_ID				0x30DC
+#define IMX585_CHIP_ID					0x32
 
-#define IMX585_REG_MODE_SELECT		0x3000
-#define IMX585_MODE_STANDBY			0x01
-#define IMX585_MODE_STREAMING		0x00
+/* Standby or streaming mode */
+#define IMX585_REG_MODE_SELECT			0x3000
+#define IMX585_MODE_STANDBY				0x01
+#define IMX585_MODE_STREAMING			0x00
+#define IMX585_STREAM_DELAY_US			25000
+#define IMX585_STREAM_DELAY_RANGE_US	1000
 
-#define IMX585_XCLK_FREQ			24000000
+/* In clk */
+#define IMX585_XCLK_FREQ				24000000
 
 /* VMAX internal VBLANK*/
-#define IMX585_REG_VMAX				0x3028
-#define IMX585_VMAX_MAX				0xfffff
+#define IMX585_REG_VMAX					0x3028
+#define IMX585_VMAX_MAX					0xfffff
 
 /* HMAX internal HBLANK*/
-#define IMX585_REG_HMAX				0x302C
-#define IMX585_HMAX_MAX				0xffff
+#define IMX585_REG_HMAX					0x302C
+#define IMX585_HMAX_MAX					0xffff
 
 /* SHR internal */
-#define IMX585_REG_SHR				0x3050
-#define IMX585_SHR_MIN				11
+#define IMX585_REG_SHR					0x3050
+#define IMX585_SHR_MIN					11
 
 /* Exposure control */
-#define IMX585_EXPOSURE_MIN			52
-#define IMX585_EXPOSURE_STEP		1
-#define IMX585_EXPOSURE_DEFAULT		1000
-#define IMX585_EXPOSURE_MAX			49865
+#define IMX585_EXPOSURE_MIN				52
+#define IMX585_EXPOSURE_STEP			1
+#define IMX585_EXPOSURE_DEFAULT			1000
+#define IMX585_EXPOSURE_MAX				49865
 
 /* Black level control */
-#define IMX585_REG_BLKLEVEL			0x30DC
-#define IMX585_BLKLEVEL_DEFAULT		0
+#define IMX585_REG_BLKLEVEL				0x30DC
+#define IMX585_BLKLEVEL_DEFAULT			0
 
 /* Analog gain control */
-#define IMX585_REG_ANALOG_GAIN		0x306C
-#define IMX585_REG_FDG_SEL0			0x3030
-#define IMX585_ANA_GAIN_MIN			0
-#define IMX585_ANA_GAIN_MAX			240 // x3980= 72db = 0.3db x 240
-#define IMX585_ANA_GAIN_STEP		1
-#define IMX585_ANA_GAIN_DEFAULT		0
-#define IMX585_ANA_GAIN_HCG_LEVEL	51 // = 15.3db / 0.3db
+#define IMX585_REG_ANALOG_GAIN			0x306C
+#define IMX585_REG_FDG_SEL0				0x3030
+#define IMX585_ANA_GAIN_MIN				0
+#define IMX585_ANA_GAIN_MAX				240 // x3980= 72db = 0.3db x 240
+#define IMX585_ANA_GAIN_STEP			1
+#define IMX585_ANA_GAIN_DEFAULT			0
+#define IMX585_ANA_GAIN_HCG_LEVEL		51 // = 15.3db / 0.3db
 #define IMX585_ANA_GAIN_HCG_THRESHOLD	(IMX585_ANA_GAIN_HCG_LEVEL+29)
-#define IMX585_ANA_GAIN_HCG_MIN		34
+#define IMX585_ANA_GAIN_HCG_MIN			34
 
-// #define IMX585_REG_VFLIP		0x3021
-#define IMX585_FLIP_WINMODEH    	0x3020
-#define IMX585_FLIP_WINMODEV    	0x3021
+/* Flip */
+#define IMX585_FLIP_WINMODEH    		0x3020
+#define IMX585_FLIP_WINMODEV    		0x3021
 
 /* Embedded metadata stream structure */
-#define IMX585_EMBEDDED_LINE_WIDTH 	16384
-#define IMX585_NUM_EMBEDDED_LINES 	1
+#define IMX585_EMBEDDED_LINE_WIDTH 		16384
+#define IMX585_NUM_EMBEDDED_LINES 		1
 
-#define IMX585_PIXEL_RATE			74250000
+#define IMX585_PIXEL_RATE				74250000
 
 enum pad_types {
 	IMAGE_PAD,
 	METADATA_PAD,
 	NUM_PADS
+};
+
+
+/* Gradation compression */
+enum v4l2_xfer_func_sony
+{
+	V4L2_XFER_FUNC_GRADATION_COMPRESSION = 10
 };
 
 /* imx585 native and active pixel array size. */
@@ -115,7 +126,7 @@ struct imx585_mode {
 	unsigned int height;
 
 	/* mode uses Clear HDR */
-	bool clear_HDR;
+	bool hdr;
 
 	/* minimum H-timing */
 	uint64_t min_HMAX;
@@ -404,7 +415,6 @@ static const struct imx585_reg mode_common_regs[] = {
     {0x5222, 0x91},// -
     {0x5224, 0x87},// -
     {0x5226, 0x82},// -
-    {0xFFFE, 0x19},
     {0x3002, 0x00}, // Master mode start
 };
 
@@ -518,7 +528,7 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		/* 4K50 All pixel */
 		.width = 3856,
 		.height = 2180,
-		.clear_HDR = false,
+		.hdr = false,
 		.min_HMAX = 660,
 		.min_VMAX = 2250,
 		.default_HMAX = 660,
@@ -539,7 +549,7 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		/* 1080p90 2x2 binning */
 		.width = 1928,
 		.height = 1090,
-		.clear_HDR = false,
+		.hdr = false,
 		.min_HMAX = 366,
 		.min_VMAX = 2250,
 		.default_HMAX = 366,
@@ -563,7 +573,7 @@ static const struct imx585_mode supported_modes_16bit[] = {
 		/* 1080p30 2x2 binning */
 		.width = 1928,
 		.height = 1090,
-		.clear_HDR = true,
+		.hdr = true,
 		//.min_HMAX = 760,
 		.min_HMAX = 550, // Clear HDR original
 		//.min_VMAX = 2250,
@@ -588,7 +598,7 @@ static const struct imx585_mode supported_modes_16bit[] = {
 		/* 4K30 All pixel */
 		.width = 3856,
 		.height = 2180,
-		.clear_HDR = true,
+		.hdr = true,
 		//.min_HMAX = 760,
 		.min_HMAX = 550, // Clear HDR original
 		//.min_VMAX = 2250,
@@ -824,18 +834,13 @@ static int imx585_write_regs(struct imx585 *imx585,
 	int ret;
 
 	for (i = 0; i < len; i++) {
-		if (regs[i].address == 0xFFFE) {
-			usleep_range(regs[i].val*1000,(regs[i].val+1)*1000);
-		}
-		else{
-			ret = imx585_write_reg_1byte(imx585, regs[i].address, regs[i].val);
-			if (ret) {
-				dev_err_ratelimited(&client->dev,
-						    "Failed to write reg 0x%4.4x. error = %d\n",
-						    regs[i].address, ret);
+		ret = imx585_write_reg_1byte(imx585, regs[i].address, regs[i].val);
+		if (ret) {
+			dev_err_ratelimited(&client->dev,
+						"Failed to write reg 0x%4.4x. error = %d\n",
+						regs[i].address, ret);
 
-				return ret;
-			}
+			return ret;
 		}
 	}
 
@@ -993,7 +998,7 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			// Use HCG mode when gain is over the HGC level
 			// This can only be done when ClearHDR is disabled
 			bool useHGC = false;
-			if (!mode->clear_HDR && gain >= IMX585_ANA_GAIN_HCG_THRESHOLD) {
+			if (!mode->hdr && gain >= IMX585_ANA_GAIN_HCG_THRESHOLD) {
 				useHGC = true;
 				gain -= IMX585_ANA_GAIN_HCG_LEVEL;
 				if ( gain < IMX585_ANA_GAIN_HCG_MIN )
@@ -1299,19 +1304,22 @@ __imx585_get_pad_crop(struct imx585 *imx585,
 /* Start streaming */
 static int imx585_start_streaming(struct imx585 *imx585)
 {
+	dev_info(&client->dev,"imx585_start_streaming\n");
+	
 	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
 	const struct IMX585_reg_list *reg_list;
 	int ret;
 
 	if (!imx585->common_regs_written) {
-		ret = imx585_write_regs(imx585, mode_common_regs,
-					ARRAY_SIZE(mode_common_regs));
+		ret = imx585_write_regs(imx585, mode_common_regs, ARRAY_SIZE(mode_common_regs));
 		if (ret) {
 			dev_err(&client->dev, "%s failed to set common settings\n",
 				__func__);
 			return ret;
 		}
+		imx585_write_reg_2byte(imx585, IMX585_REG_BLKLEVEL, IMX585_BLKLEVEL_DEFAULT);
 		imx585->common_regs_written = true;
+		dev_info(&client->dev,"common_regs_written\n");
 	}
 
 	/* Apply default values of current mode */
@@ -1322,9 +1330,6 @@ static int imx585_start_streaming(struct imx585 *imx585)
 		return ret;
 	}
 	
-	/* Set black level */
-	imx585_write_reg_2byte(imx585, IMX585_REG_BLKLEVEL, IMX585_BLKLEVEL_DEFAULT);
-
 	/* Apply customized values from user */
 	ret =  __v4l2_ctrl_handler_setup(imx585->sd.ctrl_handler);
 	if(ret) {
@@ -1333,12 +1338,15 @@ static int imx585_start_streaming(struct imx585 *imx585)
 	}
 
 	/* Set stream on register */
-	return imx585_write_reg_1byte(imx585, IMX585_REG_MODE_SELECT, IMX585_MODE_STREAMING);
+	ret = imx585_write_reg_1byte(imx585, IMX585_REG_MODE_SELECT, IMX585_MODE_STREAMING);
+	usleep_range(IMX585_STREAM_DELAY_US, IMX585_STREAM_DELAY_US + IMX585_STREAM_DELAY_RANGE_US);
+	return ret;
 }
 
 /* Stop streaming */
 static void imx585_stop_streaming(struct imx585 *imx585)
 {
+	dev_info(&client->dev,"imx585_stop_streaming\n");
 	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
 	int ret;
 
