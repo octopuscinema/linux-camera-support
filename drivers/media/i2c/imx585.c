@@ -1305,10 +1305,10 @@ __imx585_get_pad_crop(struct imx585 *imx585,
 static int imx585_start_streaming(struct imx585 *imx585)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
-	dev_info(&client->dev,"imx585_start_streaming\n");
-	
 	const struct IMX585_reg_list *reg_list;
 	int ret;
+	
+	dev_info(&client->dev,"imx585_start_streaming\n");
 
 	if (!imx585->common_regs_written) {
 		ret = imx585_write_regs(imx585, mode_common_regs, ARRAY_SIZE(mode_common_regs));
@@ -1347,8 +1347,9 @@ static int imx585_start_streaming(struct imx585 *imx585)
 static void imx585_stop_streaming(struct imx585 *imx585)
 {
 	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
-	dev_info(&client->dev,"imx585_stop_streaming\n");
 	int ret;
+	
+	dev_info(&client->dev,"imx585_stop_streaming\n");
 
 	/* set stream off register */
 	ret = imx585_write_reg_1byte(imx585, IMX585_REG_MODE_SELECT, IMX585_MODE_STANDBY);
