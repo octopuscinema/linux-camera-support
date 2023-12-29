@@ -1304,9 +1304,9 @@ __imx585_get_pad_crop(struct imx585 *imx585,
 /* Start streaming */
 static int imx585_start_streaming(struct imx585 *imx585)
 {
+	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
 	dev_info(&client->dev,"imx585_start_streaming\n");
 	
-	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
 	const struct IMX585_reg_list *reg_list;
 	int ret;
 
@@ -1346,8 +1346,8 @@ static int imx585_start_streaming(struct imx585 *imx585)
 /* Stop streaming */
 static void imx585_stop_streaming(struct imx585 *imx585)
 {
-	dev_info(&client->dev,"imx585_stop_streaming\n");
 	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
+	dev_info(&client->dev,"imx585_stop_streaming\n");
 	int ret;
 
 	/* set stream off register */
