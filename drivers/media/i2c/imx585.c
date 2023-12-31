@@ -813,7 +813,7 @@ static inline void get_mode_table(unsigned int code, enum v4l2_xfer_func transfe
 	case MEDIA_BUS_FMT_SGRBG12_1X12:
 	case MEDIA_BUS_FMT_SGBRG12_1X12:
 	case MEDIA_BUS_FMT_SBGGR12_1X12:
-		if ( transfer_function == V4L2_XFER_FUNC_GRADATION_COMPRESSION ) {
+		if ( transfer_function == (enum v4l2_xfer_func)V4L2_XFER_FUNC_GRADATION_COMPRESSION ) {
 			*mode_list = supported_modes_nonlinear_12bit;
 			*num_modes = ARRAY_SIZE(supported_modes_nonlinear_12bit);
 		} else {
