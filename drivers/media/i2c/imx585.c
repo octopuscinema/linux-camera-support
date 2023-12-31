@@ -61,6 +61,12 @@
 #define IMX585_EXPOSURE_DEFAULT			1000
 #define IMX585_EXPOSURE_MAX				49865
 
+/* Gradation compression control */
+#define IMX585_REG_CCMP1_EXP			0x36E8
+#define IMX585_REG_CCMP2_EXP			0x36E4
+#define IMX585_REG_ACMP1_EXP			0x36EE
+#define IMX585_REG_ACMP2_EXP			0x36EC
+
 /* Black level control */
 #define IMX585_REG_BLKLEVEL				0x30DC
 #define IMX585_BLKLEVEL_DEFAULT			0
@@ -94,8 +100,7 @@ enum pad_types {
 
 
 /* Gradation compression */
-enum v4l2_xfer_func_sony
-{
+enum v4l2_xfer_func_sony {
 	V4L2_XFER_FUNC_GRADATION_COMPRESSION = 10
 };
 
@@ -127,6 +132,9 @@ struct imx585_mode {
 
 	/* mode uses Clear HDR */
 	bool hdr;
+
+	/* mode has linear output (gradation compression disabled) */
+	bool linear;
 
 	/* minimum H-timing */
 	uint64_t min_HMAX;
@@ -425,6 +433,7 @@ static const struct imx585_reg mode_4k_regs[] = {
 	{0x3022, 0x02}, // ADBIT 12-bit
 	{0x3023, 0x01}, // MDBIT 12-bit
 	{0x3024, 0x00}, // COMBI_EN no HDR combining
+	{0x36EF, 0x00}, // CCMP_EN Linear
     {0x3069, 0x00}, // Normal mode
 	
 	{0x3074, 0x64}, // Normal mode
@@ -447,6 +456,7 @@ static const struct imx585_reg mode_1080_regs[] = {
 	{0x3022, 0x00}, // ADBIT 10-bit
 	{0x3023, 0x01}, // MDBIT 12-bit
 	{0x3024, 0x00}, // COMBI_EN no HDR combining
+	{0x36EF, 0x00}, // CCMP_EN Linear
 	{0x3069, 0x00}, // Normal mode
 	
 	{0x3074, 0x64}, // Normal mode
@@ -462,6 +472,38 @@ static const struct imx585_reg mode_1080_regs[] = {
     {0x4940, 0x41}, // ADTHEN Normal mode
 };
 
+/* All pixel 4K30. 12-bit (HDR gradation compression) */
+static const struct imx585_reg mode_4k_nonlinear_regs[] = {
+    {0x301A, 0x10}, // WDMODE Clear HDR
+    {0x301B, 0x00}, // ADDMODE Non-binning
+	
+	{0x3022, 0x02}, // ADBIT 12-bit
+    {0x3023, 0x01}, // MDBIT 12-bit
+    {0x3024, 0x02}, // COMBI_EN 
+
+	{0x36EF, 0x01}, // CCMP_EN Non-linear gradation compression
+	
+    {0x3030, 0x00}, // FDG_SEL0 LCG, HCG:0x01
+	
+    {0x3069, 0x02}, // for Clear HDR mode
+    {0x3074, 0x63}, // for Clear HDR
+    {0x3081, 0x02}, // EXP_GAIN, Clear HDR high gain setting, +12dB
+    
+    {0x30D5, 0x02}, // DIG_CLP_VSTART Non-binning
+	
+    {0x3930, 0xE6}, // DUR Clear HDR 12bit
+    {0x3931, 0x00}, // DUR Clear HDR 12bit
+    
+    {0x3A4C, 0x61}, // WAIT_ST0 Clear HDR mode
+    {0x3A4D, 0x02}, // Clear HDR mode
+    {0x3A50, 0x70}, // WAIT_ST1
+    {0x3A51, 0x02}, // Clear HDR mode
+    
+    {0x3E10, 0x17}, // ADTHEN Clear HDR
+    {0x493C, 0x41}, // WAIT_10_SHF Clear HDR 10-bit 0x0C disable
+    {0x4940, 0x41}, // WAIT_12_SHF Clear HDR 12-bit 0x41 enable
+};
+
 /* All pixel 4K30. 16-bit (Clear HDR) */
 static const struct imx585_reg mode_4k_16bit_regs[] = {
     {0x301A, 0x10}, // WDMODE Clear HDR
@@ -470,6 +512,8 @@ static const struct imx585_reg mode_4k_16bit_regs[] = {
 	{0x3022, 0x02}, // ADBIT 12-bit
     {0x3023, 0x03}, // MDBIT 16-bit
     {0x3024, 0x02}, // COMBI_EN 
+
+	{0x36EF, 0x00}, // CCMP_EN Linear
 	
     {0x3030, 0x00}, // FDG_SEL0 LCG, HCG:0x01
 	
@@ -500,6 +544,8 @@ static const struct imx585_reg mode_1080_16bit_regs[] = {
 	{0x3022, 0x02}, // ADBIT 12-bit
     {0x3023, 0x03}, // MDBIT 16-bit
     {0x3024, 0x02}, // COMBI_EN Built-in HDR combining
+
+	{0x36EF, 0x00}, // CCMP_EN Linear
 	
     {0x3030, 0x00}, // FDG_SEL0 LCG, HCG:0x01
 	
@@ -529,6 +575,7 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		.width = 3856,
 		.height = 2180,
 		.hdr = false,
+		.linear = true,
 		.min_HMAX = 660,
 		.min_VMAX = 2250,
 		.default_HMAX = 660,
@@ -550,6 +597,7 @@ static const struct imx585_mode supported_modes_12bit[] = {
 		.width = 1928,
 		.height = 1090,
 		.hdr = false,
+		.linear = true,
 		.min_HMAX = 366,
 		.min_VMAX = 2250,
 		.default_HMAX = 366,
@@ -568,12 +616,42 @@ static const struct imx585_mode supported_modes_12bit[] = {
 	},
 };
 
+static const struct imx585_mode supported_modes_nonlinear_12bit[] = {
+	{
+		/* 4K30 All pixel */
+		.width = 3856,
+		.height = 2180,
+		.hdr = true,
+		.linear = false,
+		//.min_HMAX = 760,
+		.min_HMAX = 550, // Clear HDR original
+		//.min_VMAX = 2250,
+		.min_VMAX = 4500, // Clear HDR original
+		.default_HMAX = 550,
+		.default_VMAX = 4500,
+		// .default_HMAX = 550,
+		// .default_VMAX = 4500,
+		.min_SHR = 20,
+		.crop = {
+			.left = IMX585_PIXEL_ARRAY_LEFT,
+			.top = IMX585_PIXEL_ARRAY_TOP,
+			.width = IMX585_PIXEL_ARRAY_WIDTH,
+			.height = IMX585_PIXEL_ARRAY_HEIGHT,
+		},
+		.reg_list = {
+			.num_of_regs = ARRAY_SIZE(mode_4k_nonlinear_regs),
+			.regs = mode_4k_nonlinear_regs,
+		},
+	},
+};
+
 static const struct imx585_mode supported_modes_16bit[] = {
 	{
 		/* 1080p30 2x2 binning */
 		.width = 1928,
 		.height = 1090,
 		.hdr = true,
+		.linear = true,
 		//.min_HMAX = 760,
 		.min_HMAX = 550, // Clear HDR original
 		//.min_VMAX = 2250,
@@ -599,6 +677,7 @@ static const struct imx585_mode supported_modes_16bit[] = {
 		.width = 3856,
 		.height = 2180,
 		.hdr = true,
+		.linear = true,
 		//.min_HMAX = 760,
 		.min_HMAX = 550, // Clear HDR original
 		//.min_VMAX = 2250,
@@ -716,7 +795,7 @@ static inline struct imx585 *to_imx585(struct v4l2_subdev *_sd)
 	return container_of(_sd, struct imx585, sd);
 }
 
-static inline void get_mode_table(unsigned int code,
+static inline void get_mode_table(unsigned int code, enum v4l2_xfer_func transfer_function,
 				  const struct imx585_mode **mode_list,
 				  unsigned int *num_modes)
 {
@@ -734,8 +813,13 @@ static inline void get_mode_table(unsigned int code,
 	case MEDIA_BUS_FMT_SGRBG12_1X12:
 	case MEDIA_BUS_FMT_SGBRG12_1X12:
 	case MEDIA_BUS_FMT_SBGGR12_1X12:
-		*mode_list = supported_modes_12bit;
-		*num_modes = ARRAY_SIZE(supported_modes_12bit);
+		if ( transfer_function == V4L2_XFER_FUNC_GRADATION_COMPRESSION ) {
+			*mode_list = supported_modes_nonlinear_12bit;
+			*num_modes = ARRAY_SIZE(supported_modes_nonlinear_12bit);
+		} else {
+			*mode_list = supported_modes_12bit;
+			*num_modes = ARRAY_SIZE(supported_modes_12bit);
+		}
 		break;
 	default:
 		*mode_list = NULL;
@@ -996,7 +1080,7 @@ static int imx585_set_ctrl(struct v4l2_ctrl *ctrl)
 			int gain = ctrl->val;
 
 			// Use HCG mode when gain is over the HGC level
-			// This can only be done when ClearHDR is disabled
+			// This can only be done when HDR is disabled
 			bool useHGC = false;
 			if (!mode->hdr && gain >= IMX585_ANA_GAIN_HCG_THRESHOLD) {
 				useHGC = true;
@@ -1100,7 +1184,7 @@ static int imx585_enum_frame_size(struct v4l2_subdev *sd,
 		const struct imx585_mode *mode_list;
 		unsigned int num_modes;
 
-		get_mode_table(fse->code, &mode_list, &num_modes);
+		get_mode_table(fse->code, V4L2_XFER_FUNC_DEFAULT, &mode_list, &num_modes);
 
 		if (fse->index >= num_modes)
 			return -EINVAL;
@@ -1125,14 +1209,14 @@ static int imx585_enum_frame_size(struct v4l2_subdev *sd,
 	return 0;
 }
 
-static void imx585_reset_colorspace(struct v4l2_mbus_framefmt *fmt)
+static void imx585_reset_colorspace(const struct imx585_mode *mode, struct v4l2_mbus_framefmt *fmt)
 {
 	fmt->colorspace = V4L2_COLORSPACE_RAW;
 	fmt->ycbcr_enc = V4L2_MAP_YCBCR_ENC_DEFAULT(fmt->colorspace);
 	fmt->quantization = V4L2_MAP_QUANTIZATION_DEFAULT(true,
 							  fmt->colorspace,
 							  fmt->ycbcr_enc);
-	fmt->xfer_func = V4L2_MAP_XFER_FUNC_DEFAULT(fmt->colorspace);
+	fmt->xfer_func = mode->linear ? V4L2_MAP_XFER_FUNC_DEFAULT(fmt->colorspace) : V4L2_XFER_FUNC_GRADATION_COMPRESSION;
 }
 
 static void imx585_update_image_pad_format(struct imx585 *imx585,
@@ -1142,7 +1226,7 @@ static void imx585_update_image_pad_format(struct imx585 *imx585,
 	fmt->format.width = mode->width;
 	fmt->format.height = mode->height;
 	fmt->format.field = V4L2_FIELD_NONE;
-	imx585_reset_colorspace(&fmt->format);
+	imx585_reset_colorspace(mode, &fmt->format);
 }
 
 static void imx585_update_metadata_pad_format(struct v4l2_subdev_format *fmt)
@@ -1252,7 +1336,7 @@ static int imx585_set_pad_format(struct v4l2_subdev *sd,
 		fmt->format.code = imx585_get_format_code(imx585,
 							  fmt->format.code);
 
-		get_mode_table(fmt->format.code, &mode_list, &num_modes);
+		get_mode_table(fmt->format.code, fmt->format.xfer_func, &mode_list, &num_modes);
 
 		mode = v4l2_find_nearest_size(mode_list,
 					      num_modes,
@@ -1313,8 +1397,7 @@ static int imx585_start_streaming(struct imx585 *imx585)
 	if (!imx585->common_regs_written) {
 		ret = imx585_write_regs(imx585, mode_common_regs, ARRAY_SIZE(mode_common_regs));
 		if (ret) {
-			dev_err(&client->dev, "%s failed to set common settings\n",
-				__func__);
+			dev_err(&client->dev, "%s failed to set common settings\n", __func__);
 			return ret;
 		}
 		imx585_write_reg_2byte(imx585, IMX585_REG_BLKLEVEL, IMX585_BLKLEVEL_DEFAULT);
@@ -1328,6 +1411,19 @@ static int imx585_start_streaming(struct imx585 *imx585)
 	if (ret) {
 		dev_err(&client->dev, "%s failed to set mode\n", __func__);
 		return ret;
+	}
+
+	/* Apply gradation compression curve for non-linear mode */
+	if ( !imx585->mode->linear ) {
+		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 0);
+		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0);
+		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 2113);
+		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0x5);
+	} else {
+		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 0);
+		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0);
+		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 0);
+		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0);
 	}
 	
 	/* Apply customized values from user */
