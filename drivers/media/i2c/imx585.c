@@ -1322,6 +1322,9 @@ static int imx585_set_pad_format(struct v4l2_subdev *sd,
 	struct v4l2_mbus_framefmt *framefmt;
 	const struct imx585_mode *mode;
 	struct imx585 *imx585 = to_imx585(sd);
+	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
+
+	dev_info(&client->dev,"xfer_func: %d\n", (int)fmt->format.xfer_func);
 
 	if (fmt->pad >= NUM_PADS)
 		return -EINVAL;
@@ -1419,11 +1422,13 @@ static int imx585_start_streaming(struct imx585 *imx585)
 		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0);
 		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 2113);
 		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0x5);
+		dev_info(&client->dev,"IMX585_REG_CCMP2_EXP: 2113\n");
 	} else {
 		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 0);
 		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0);
 		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 0);
 		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0);
+		dev_info(&client->dev,"IMX585_REG_CCMP2_EXP: 0\n");
 	}
 	
 	/* Apply customized values from user */
