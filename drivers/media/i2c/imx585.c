@@ -1242,6 +1242,9 @@ static int imx585_get_pad_format(struct v4l2_subdev *sd,
 				 struct v4l2_subdev_format *fmt)
 {
 	struct imx585 *imx585 = to_imx585(sd);
+	struct i2c_client *client = v4l2_get_subdevdata(&imx585->sd);
+
+	dev_info(&client->dev,"xfer_func: %d\n", (int)fmt->format.xfer_func);
 
 	if (fmt->pad >= NUM_PADS)
 		return -EINVAL;
