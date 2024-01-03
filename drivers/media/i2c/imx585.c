@@ -61,6 +61,11 @@
 #define IMX585_EXPOSURE_DEFAULT			1000
 #define IMX585_EXPOSURE_MAX				49865
 
+/* HDR threshold */
+#define IMX585_REG_EXP_TH_H				0x36D0
+#define IMX585_REG_EXP_TH_L				0x36D4
+#define IMX585_REG_EXP_BK				0x36E2
+
 /* Gradation compression control */
 #define IMX585_REG_CCMP1_EXP			0x36E8
 #define IMX585_REG_CCMP2_EXP			0x36E4
@@ -1432,6 +1437,13 @@ static int imx585_start_streaming(struct imx585 *imx585)
 		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 0);
 		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0);
 		dev_info(&client->dev,"IMX585_REG_CCMP2_EXP: 0\n");
+	}
+	
+	/* Apply HDR combining options */
+	if ( imx585->mode->hdr ) {
+		imx585_write_reg_2byte(imx585, IMX585_REG_EXP_TH_H, 4095);
+		imx585_write_reg_2byte(imx585, IMX585_REG_EXP_TH_L, 1024);
+		imx585_write_reg_1byte(imx585, IMX585_REG_EXP_BK, 0);
 	}
 	
 	/* Apply customized values from user */
