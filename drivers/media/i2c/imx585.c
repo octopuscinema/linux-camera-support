@@ -1442,7 +1442,7 @@ static int imx585_start_streaming(struct imx585 *imx585)
 	/* Apply HDR combining options */
 	if ( imx585->mode->hdr ) {
 		imx585_write_reg_2byte(imx585, IMX585_REG_EXP_TH_H, 4095);
-		imx585_write_reg_2byte(imx585, IMX585_REG_EXP_TH_L, 1024);
+		imx585_write_reg_2byte(imx585, IMX585_REG_EXP_TH_L, 256);
 		imx585_write_reg_1byte(imx585, IMX585_REG_EXP_BK, 0);
 	}
 	
