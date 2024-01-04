@@ -1426,11 +1426,11 @@ static int imx585_start_streaming(struct imx585 *imx585)
 
 	/* Apply gradation compression curve for non-linear mode */
 	if ( !imx585->mode->linear ) {
-		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 2113);
-		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0x5);
-		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 65535);
-		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0x0);
-		dev_info(&client->dev,"IMX585_REG_CCMP1_EXP: 2113\n");
+		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 1024);
+		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0x2);
+		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 9826);
+		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0x4);
+		dev_info(&client->dev,"IMX585_REG_CCMP1_EXP: 1024\n");
 	} else {
 		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 0);
 		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0);
