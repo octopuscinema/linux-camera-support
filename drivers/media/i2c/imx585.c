@@ -1426,10 +1426,10 @@ static int imx585_start_streaming(struct imx585 *imx585)
 
 	/* Apply gradation compression curve for non-linear mode */
 	if ( !imx585->mode->linear ) {
-		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 800);
+		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 500);
 		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0x2);
-		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 6600);
-		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0x5);
+		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP2_EXP, 11500);
+		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP2_EXP, 0x6);
 	} else {
 		imx585_write_reg_3byte(imx585, IMX585_REG_CCMP1_EXP, 0);
 		imx585_write_reg_1byte(imx585, IMX585_REG_ACMP1_EXP, 0);
@@ -1440,7 +1440,7 @@ static int imx585_start_streaming(struct imx585 *imx585)
 	/* Apply HDR combining options */
 	if ( imx585->mode->hdr ) {
 		imx585_write_reg_2byte(imx585, IMX585_REG_EXP_TH_H, 4095);
-		imx585_write_reg_2byte(imx585, IMX585_REG_EXP_TH_L, 256);
+		imx585_write_reg_2byte(imx585, IMX585_REG_EXP_TH_L, 512);
 		imx585_write_reg_1byte(imx585, IMX585_REG_EXP_BK, 0);
 	}
 	
