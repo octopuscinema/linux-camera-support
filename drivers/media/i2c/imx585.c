@@ -975,8 +975,7 @@ static int imx585_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	/* Initialize try_fmt for the image pad */
 	try_fmt_img->width = supported_modes_12bit[0].width;
 	try_fmt_img->height = supported_modes_12bit[0].height;
-	try_fmt_img->code = imx585_get_format_code(imx585,
-						   MEDIA_BUS_FMT_SRGGB12_1X12);
+	try_fmt_img->code = imx585_get_format_code(imx585, MEDIA_BUS_FMT_SRGGB12_1X12);
 	try_fmt_img->field = V4L2_FIELD_NONE;
 
 	/* Initialize try_fmt for the embedded metadata pad */
