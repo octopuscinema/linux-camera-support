@@ -7,7 +7,7 @@
  * Modified by Will WHANG
  * Modified by sohonomura2020 in Soho Enterprise Ltd.
  * Modified by OCTOPUSCINEMA
- * Copyright (C) 2023 OCTOPUS CINEMA
+ * Copyright (C) 2024 OCTOPUS CINEMA
  */
 #include <asm/unaligned.h>
 #include <linux/clk.h>
@@ -75,6 +75,9 @@
 /* Black level control */
 #define IMX585_REG_BLKLEVEL				0x30DC
 #define IMX585_BLKLEVEL_DEFAULT			0
+
+/* Digital Clamp */
+#define IMX585_REG_DIGITAL_CLAMP		0x3458
 
 /* Analog gain control */
 #define IMX585_REG_ANALOG_GAIN			0x306C
@@ -1443,6 +1446,9 @@ static int imx585_start_streaming(struct imx585 *imx585)
 		imx585_write_reg_1byte(imx585, IMX585_REG_EXP_BK, 0);
 	}
 	
+	/* Disable digital clamp */
+	imx585_write_reg_1byte(imx585, IMX585_REG_DIGITAL_CLAMP, 0);
+	
 	/* Apply customized values from user */
 	ret =  __v4l2_ctrl_handler_setup(imx585->sd.ctrl_handler);
 	if(ret) {
@@ -1946,5 +1952,6 @@ module_i2c_driver(imx585_i2c_driver);
 
 MODULE_AUTHOR("Will Whang <will@willwhang.com>");
 MODULE_AUTHOR("Tetsuya NOMURA <tetsuya.nomura@soho-enterprise.com>");
+MODULE_AUTHOR("Russell Newman <russellnewman@octopuscinema.com>");
 MODULE_DESCRIPTION("Sony imx585 sensor driver");
 MODULE_LICENSE("GPL v2");
